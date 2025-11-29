@@ -1,0 +1,379 @@
+{
+  "meta": {
+    "name": "The Bank Day",
+    "description": "A sample day graph for testing. Protagonist wakes, a bank robbery happens, sister is in danger.",
+    "total_time_slots": 12,
+    "version": "1.0"
+  },
+
+  "characters": {
+    "PROTAGONIST": {"name": "Alex", "role": "protagonist"},
+    "SISTER": {"name": "Maya", "role": "key_npc", "default_location": "home"},
+    "VILLAIN": {"name": "Cole", "role": "antagonist", "default_location": "unknown"},
+    "STRANGER": {"name": "Dr. Webb", "role": "ally_potential"},
+    "GUARD": {"name": "Bank Guard", "role": "minor"}
+  },
+
+  "locations": [
+    "home",
+    "street",
+    "bank",
+    "cafe",
+    "hospital",
+    "warehouse",
+    "rooftop"
+  ],
+
+  "facts": {
+    "discoverable": [
+      "SISTER_AT_BANK",
+      "BOMB_LOCATION",
+      "VILLAIN_IDENTITY",
+      "ESCAPE_ROUTE",
+      "GUARD_SCHEDULE",
+      "CODEWORD_ALPHA",
+      "DR_WEBB_IS_ALLY"
+    ],
+    "world_state": [
+      "SISTER_ALIVE",
+      "SISTER_DEAD",
+      "VILLAIN_ESCAPED",
+      "VILLAIN_CAUGHT",
+      "BOMB_DEFUSED",
+      "BOMB_EXPLODED",
+      "PROTAGONIST_DEAD"
+    ]
+  },
+
+  "nodes": [
+    {
+      "id": "wake_up",
+      "name": "Wake Up",
+      "description": "The day begins. Again.",
+      "time_slot": 0,
+      "type": "soft",
+      "preconditions": [],
+      "effects": [],
+      "location": "home"
+    },
+    {
+      "id": "morning_choice",
+      "name": "Morning Decision",
+      "description": "What to do first?",
+      "time_slot": 1,
+      "type": "critical",
+      "preconditions": [],
+      "effects": [],
+      "location": "home"
+    },
+    {
+      "id": "go_to_bank_early",
+      "name": "Go to Bank (Early)",
+      "description": "Head to bank before robbery starts",
+      "time_slot": 2,
+      "type": "critical",
+      "preconditions": [],
+      "effects": ["LEARN:GUARD_SCHEDULE"],
+      "location": "bank"
+    },
+    {
+      "id": "go_to_cafe",
+      "name": "Go to Cafe",
+      "description": "Get coffee, observe street",
+      "time_slot": 2,
+      "type": "soft",
+      "preconditions": [],
+      "effects": [],
+      "location": "cafe"
+    },
+    {
+      "id": "stay_home",
+      "name": "Stay Home",
+      "description": "Wait at home",
+      "time_slot": 2,
+      "type": "soft",
+      "preconditions": [],
+      "effects": [],
+      "location": "home"
+    },
+    {
+      "id": "meet_stranger",
+      "name": "Meet Dr. Webb",
+      "description": "Mysterious stranger approaches with information",
+      "time_slot": 3,
+      "type": "revelation",
+      "preconditions": ["AT:cafe"],
+      "effects": ["LEARN:DR_WEBB_IS_ALLY", "LEARN:BOMB_LOCATION"],
+      "location": "cafe"
+    },
+    {
+      "id": "phone_rings",
+      "name": "Phone Rings",
+      "description": "Sister calls - she's at the bank",
+      "time_slot": 3,
+      "type": "revelation",
+      "preconditions": ["AT:home"],
+      "effects": ["LEARN:SISTER_AT_BANK"],
+      "location": "home"
+    },
+    {
+      "id": "observe_villain",
+      "name": "Spot the Villain",
+      "description": "See Cole entering bank through back",
+      "time_slot": 3,
+      "type": "revelation",
+      "preconditions": ["AT:bank"],
+      "effects": ["LEARN:VILLAIN_IDENTITY"],
+      "location": "bank"
+    },
+    {
+      "id": "robbery_starts",
+      "name": "Robbery Begins",
+      "description": "Gunshots at the bank. Chaos.",
+      "time_slot": 4,
+      "type": "critical",
+      "preconditions": [],
+      "effects": [],
+      "location": "bank"
+    },
+    {
+      "id": "rush_to_bank",
+      "name": "Rush to Bank",
+      "description": "Sprint to the bank after hearing news",
+      "time_slot": 5,
+      "type": "soft",
+      "preconditions": ["NOT:AT:bank"],
+      "effects": [],
+      "location": "street"
+    },
+    {
+      "id": "inside_during_robbery",
+      "name": "Trapped Inside",
+      "description": "Already in bank when robbery starts",
+      "time_slot": 5,
+      "type": "critical",
+      "preconditions": ["AT:bank", "time<=4"],
+      "effects": [],
+      "location": "bank"
+    },
+    {
+      "id": "confront_villain",
+      "name": "Confront Cole",
+      "description": "Face the villain directly",
+      "time_slot": 6,
+      "type": "critical",
+      "preconditions": ["KNOW:VILLAIN_IDENTITY"],
+      "effects": [],
+      "location": "bank"
+    },
+    {
+      "id": "find_sister",
+      "name": "Find Maya",
+      "description": "Locate sister in the chaos",
+      "time_slot": 6,
+      "type": "critical",
+      "preconditions": ["KNOW:SISTER_AT_BANK"],
+      "effects": [],
+      "location": "bank"
+    },
+    {
+      "id": "search_bomb",
+      "name": "Search for Bomb",
+      "description": "Try to find and defuse the explosive",
+      "time_slot": 6,
+      "type": "critical",
+      "preconditions": ["KNOW:BOMB_LOCATION"],
+      "effects": [],
+      "location": "bank"
+    },
+    {
+      "id": "save_sister",
+      "name": "Save Maya",
+      "description": "Get sister out of danger",
+      "time_slot": 7,
+      "type": "critical",
+      "preconditions": ["found_sister"],
+      "effects": ["SET:SISTER_ALIVE"],
+      "location": "bank"
+    },
+    {
+      "id": "sister_dies",
+      "name": "Maya Dies",
+      "description": "Too late. She's gone.",
+      "time_slot": 7,
+      "type": "death",
+      "preconditions": ["NOT:found_sister", "time>=7"],
+      "effects": ["SET:SISTER_DEAD"],
+      "location": "bank"
+    },
+    {
+      "id": "defuse_bomb",
+      "name": "Defuse Bomb",
+      "description": "Use knowledge to stop explosion",
+      "time_slot": 7,
+      "type": "critical",
+      "preconditions": ["KNOW:BOMB_LOCATION", "KNOW:CODEWORD_ALPHA"],
+      "effects": ["SET:BOMB_DEFUSED"],
+      "location": "bank"
+    },
+    {
+      "id": "bomb_explodes",
+      "name": "Explosion",
+      "description": "The bomb detonates. Everything ends.",
+      "time_slot": 8,
+      "type": "death",
+      "preconditions": ["NOT:BOMB_DEFUSED", "time>=8"],
+      "effects": ["SET:BOMB_EXPLODED", "SET:PROTAGONIST_DEAD"],
+      "location": "bank"
+    },
+    {
+      "id": "chase_villain",
+      "name": "Chase Cole",
+      "description": "Pursue the fleeing villain",
+      "time_slot": 8,
+      "type": "critical",
+      "preconditions": ["survived_explosion"],
+      "effects": [],
+      "location": "street"
+    },
+    {
+      "id": "villain_escapes",
+      "name": "Cole Escapes",
+      "description": "He got away. Again.",
+      "time_slot": 9,
+      "type": "soft",
+      "preconditions": ["NOT:caught_villain"],
+      "effects": ["SET:VILLAIN_ESCAPED"],
+      "location": "street"
+    },
+    {
+      "id": "catch_villain",
+      "name": "Catch Cole",
+      "description": "Finally. Got him.",
+      "time_slot": 9,
+      "type": "critical",
+      "preconditions": ["KNOW:ESCAPE_ROUTE"],
+      "effects": ["SET:VILLAIN_CAUGHT"],
+      "location": "warehouse"
+    },
+    {
+      "id": "rooftop_finale",
+      "name": "Rooftop Confrontation",
+      "description": "Final showdown",
+      "time_slot": 10,
+      "type": "critical",
+      "preconditions": ["caught_villain"],
+      "effects": [],
+      "location": "rooftop"
+    },
+    {
+      "id": "day_ends_good",
+      "name": "Day Ends - Victory",
+      "description": "Sister alive, villain caught, bomb defused",
+      "time_slot": 11,
+      "type": "soft",
+      "preconditions": ["SISTER_ALIVE", "VILLAIN_CAUGHT", "BOMB_DEFUSED"],
+      "effects": [],
+      "location": "home"
+    },
+    {
+      "id": "day_ends_partial",
+      "name": "Day Ends - Partial",
+      "description": "Some wins, some losses",
+      "time_slot": 11,
+      "type": "soft",
+      "preconditions": [],
+      "effects": [],
+      "location": "home"
+    },
+    {
+      "id": "day_ends_death",
+      "name": "Day Ends - Death",
+      "description": "Loop terminates early",
+      "time_slot": -1,
+      "type": "death",
+      "preconditions": ["PROTAGONIST_DEAD"],
+      "effects": [],
+      "location": "none"
+    }
+  ],
+
+  "transitions": [
+    {"from": "wake_up", "to": "morning_choice", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "morning_choice", "to": "go_to_bank_early", "time_cost": 1, "conditions": [], "probability": 1.0},
+    {"from": "morning_choice", "to": "go_to_cafe", "time_cost": 1, "conditions": [], "probability": 1.0},
+    {"from": "morning_choice", "to": "stay_home", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "go_to_cafe", "to": "meet_stranger", "time_cost": 1, "conditions": [], "probability": 0.7},
+    {"from": "stay_home", "to": "phone_rings", "time_cost": 1, "conditions": [], "probability": 1.0},
+    {"from": "go_to_bank_early", "to": "observe_villain", "time_cost": 1, "conditions": [], "probability": 0.5},
+
+    {"from": "phone_rings", "to": "rush_to_bank", "time_cost": 2, "conditions": [], "probability": 1.0},
+    {"from": "meet_stranger", "to": "rush_to_bank", "time_cost": 2, "conditions": [], "probability": 1.0},
+    {"from": "go_to_bank_early", "to": "inside_during_robbery", "time_cost": 2, "conditions": [], "probability": 1.0},
+    {"from": "observe_villain", "to": "inside_during_robbery", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "rush_to_bank", "to": "find_sister", "time_cost": 1, "conditions": ["KNOW:SISTER_AT_BANK"], "probability": 1.0},
+    {"from": "rush_to_bank", "to": "search_bomb", "time_cost": 1, "conditions": ["KNOW:BOMB_LOCATION"], "probability": 1.0},
+    {"from": "inside_during_robbery", "to": "confront_villain", "time_cost": 1, "conditions": ["KNOW:VILLAIN_IDENTITY"], "probability": 1.0},
+    {"from": "inside_during_robbery", "to": "find_sister", "time_cost": 1, "conditions": ["KNOW:SISTER_AT_BANK"], "probability": 1.0},
+
+    {"from": "find_sister", "to": "save_sister", "time_cost": 1, "conditions": [], "probability": 0.6},
+    {"from": "find_sister", "to": "sister_dies", "time_cost": 1, "conditions": [], "probability": 0.4},
+
+    {"from": "search_bomb", "to": "defuse_bomb", "time_cost": 1, "conditions": ["KNOW:CODEWORD_ALPHA"], "probability": 0.8},
+    {"from": "search_bomb", "to": "bomb_explodes", "time_cost": 1, "conditions": ["NOT:KNOW:CODEWORD_ALPHA"], "probability": 1.0},
+
+    {"from": "confront_villain", "to": "chase_villain", "time_cost": 2, "conditions": [], "probability": 0.7},
+    {"from": "confront_villain", "to": "bomb_explodes", "time_cost": 2, "conditions": [], "probability": 0.3},
+
+    {"from": "save_sister", "to": "chase_villain", "time_cost": 1, "conditions": [], "probability": 1.0},
+    {"from": "defuse_bomb", "to": "chase_villain", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "chase_villain", "to": "catch_villain", "time_cost": 1, "conditions": ["KNOW:ESCAPE_ROUTE"], "probability": 0.9},
+    {"from": "chase_villain", "to": "villain_escapes", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "catch_villain", "to": "rooftop_finale", "time_cost": 1, "conditions": [], "probability": 1.0},
+
+    {"from": "rooftop_finale", "to": "day_ends_good", "time_cost": 1, "conditions": ["SISTER_ALIVE", "BOMB_DEFUSED"], "probability": 1.0},
+    {"from": "villain_escapes", "to": "day_ends_partial", "time_cost": 2, "conditions": [], "probability": 1.0},
+    {"from": "sister_dies", "to": "day_ends_partial", "time_cost": 4, "conditions": [], "probability": 1.0},
+    {"from": "bomb_explodes", "to": "day_ends_death", "time_cost": 0, "conditions": [], "probability": 1.0}
+  ],
+
+  "key_decisions": {
+    "bit_0": "GO_TO_BANK_EARLY",
+    "bit_1": "GO_TO_CAFE",
+    "bit_2": "STAY_HOME",
+    "bit_3": "CONFRONT_VILLAIN",
+    "bit_4": "PRIORITIZE_SISTER",
+    "bit_5": "PRIORITIZE_BOMB",
+    "bit_6": "CHASE_VILLAIN",
+    "bit_7": "TRUST_STRANGER"
+  },
+
+  "sample_outcomes": {
+    "perfect": {
+      "hash": "a1b2c3d4e5f6",
+      "survivors": ["SISTER", "PROTAGONIST"],
+      "deaths": ["VILLAIN"],
+      "state": ["SISTER_ALIVE", "BOMB_DEFUSED", "VILLAIN_CAUGHT"],
+      "knowledge_required": ["SISTER_AT_BANK", "BOMB_LOCATION", "CODEWORD_ALPHA", "ESCAPE_ROUTE"]
+    },
+    "common_failure": {
+      "hash": "f6e5d4c3b2a1",
+      "survivors": [],
+      "deaths": ["PROTAGONIST", "SISTER"],
+      "state": ["BOMB_EXPLODED", "PROTAGONIST_DEAD", "SISTER_DEAD"],
+      "knowledge_required": []
+    },
+    "sister_saved_villain_escapes": {
+      "hash": "1a2b3c4d5e6f",
+      "survivors": ["SISTER", "PROTAGONIST"],
+      "deaths": [],
+      "state": ["SISTER_ALIVE", "VILLAIN_ESCAPED"],
+      "knowledge_required": ["SISTER_AT_BANK"]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+# Loop Engine Dependencies
+# Python 3.11+
+
+# Core
+networkx>=3.0        # Graph operations
+pydantic>=2.0        # Data validation
+
+# Storage (sqlite3 is built-in)
+
+# CLI & Output
+rich>=13.0           # Pretty console output
+typer>=0.9           # CLI framework
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
+
+# Development
+black>=23.0          # Formatting
+mypy>=1.0            # Type checking
+ruff>=0.1            # Linting
+
+# Optional: Visualization
+# matplotlib>=3.7    # Graph visualization
+# graphviz>=0.20     # Export graphs

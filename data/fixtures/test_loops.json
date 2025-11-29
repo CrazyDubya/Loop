@@ -1,0 +1,175 @@
+{
+  "description": "Test fixtures for Loop Engine development",
+  "version": "1.0",
+
+  "sample_loops": [
+    {
+      "id": "loop-001",
+      "parent_id": null,
+      "epoch": "naive",
+      "key_choices": 5,
+      "outcome_hash": "f6e5d4c3b2a1",
+      "knowledge_id": "0000000000000000",
+      "mood_id": "confused",
+      "tags": ["first_loop", "death", "explosion"],
+      "decision_trace": ["wake_up", "morning_choice", "stay_home", "phone_rings", "rush_to_bank", "bomb_explodes"],
+      "created_at": 1700000000.0,
+      "notes": "First loop. No knowledge. Dies in explosion."
+    },
+    {
+      "id": "loop-002",
+      "parent_id": "loop-001",
+      "epoch": "naive",
+      "key_choices": 3,
+      "outcome_hash": "f6e5d4c3b2a1",
+      "knowledge_id": "a1b2000000000000",
+      "mood_id": "panicked",
+      "tags": ["death", "explosion", "learned_sister_location"],
+      "decision_trace": ["wake_up", "morning_choice", "stay_home", "phone_rings", "rush_to_bank", "find_sister", "bomb_explodes"],
+      "created_at": 1700000001.0,
+      "notes": "Second loop. Learned sister is at bank. Still dies."
+    },
+    {
+      "id": "loop-003",
+      "parent_id": "loop-002",
+      "epoch": "naive",
+      "key_choices": 2,
+      "outcome_hash": "1a2b3c4d5e6f",
+      "knowledge_id": "a1b2000000000000",
+      "mood_id": "hopeful",
+      "tags": ["sister_saved", "villain_escaped"],
+      "decision_trace": ["wake_up", "morning_choice", "stay_home", "phone_rings", "rush_to_bank", "find_sister", "save_sister", "villain_escapes"],
+      "created_at": 1700000002.0,
+      "notes": "Third loop. Saved sister! But villain escaped."
+    },
+    {
+      "id": "loop-047",
+      "parent_id": "loop-003",
+      "epoch": "mapping",
+      "key_choices": 6,
+      "outcome_hash": "cafe0000beef",
+      "knowledge_id": "a1b2c3d400000000",
+      "mood_id": "curious",
+      "tags": ["met_stranger", "learned_bomb_location"],
+      "decision_trace": ["wake_up", "morning_choice", "go_to_cafe", "meet_stranger", "rush_to_bank", "search_bomb", "bomb_explodes"],
+      "created_at": 1700000047.0,
+      "notes": "Discovered Dr. Webb and bomb location. Still died - missing codeword."
+    },
+    {
+      "id": "loop-128",
+      "parent_id": "loop-047",
+      "epoch": "obsession",
+      "key_choices": 15,
+      "outcome_hash": "a1b2c3d4e5f6",
+      "knowledge_id": "ffffffffffff0000",
+      "mood_id": "triumphant",
+      "tags": ["perfect_run", "sister_saved", "villain_caught", "bomb_defused"],
+      "decision_trace": ["wake_up", "morning_choice", "go_to_bank_early", "observe_villain", "inside_during_robbery", "find_sister", "save_sister", "defuse_bomb", "chase_villain", "catch_villain", "rooftop_finale", "day_ends_good"],
+      "created_at": 1700000128.0,
+      "notes": "First perfect run. Everything saved. But at what cost?"
+    }
+  ],
+
+  "sample_classes": [
+    {
+      "id": "class-explosion-ignorant",
+      "outcome_hash": "f6e5d4c3b2a1",
+      "knowledge_delta": [],
+      "mood_delta": "trauma",
+      "count": 2341,
+      "representative_id": "loop-001",
+      "sample_ids": ["loop-001", "loop-002", "loop-089"],
+      "notes": "Died in explosion, learned nothing. Thousands of these."
+    },
+    {
+      "id": "class-sister-saved-villain-free",
+      "outcome_hash": "1a2b3c4d5e6f",
+      "knowledge_delta": ["SISTER_AT_BANK"],
+      "mood_delta": "bittersweet",
+      "count": 892,
+      "representative_id": "loop-003",
+      "sample_ids": ["loop-003", "loop-015", "loop-077"],
+      "notes": "Saved sister but villain escaped. Common partial win."
+    },
+    {
+      "id": "class-perfect",
+      "outcome_hash": "a1b2c3d4e5f6",
+      "knowledge_delta": ["SISTER_AT_BANK", "BOMB_LOCATION", "CODEWORD_ALPHA", "ESCAPE_ROUTE", "VILLAIN_IDENTITY"],
+      "mood_delta": "hollow_victory",
+      "count": 47,
+      "representative_id": "loop-128",
+      "sample_ids": ["loop-128", "loop-256", "loop-512"],
+      "notes": "Perfect ending. Rare. Requires all knowledge."
+    }
+  ],
+
+  "sample_subloops": [
+    {
+      "id": "subloop-001",
+      "parent_loop_id": "loop-047",
+      "start_time": 6,
+      "end_time": 7,
+      "attempts_count": 214,
+      "best_outcome_hash": "partial_defuse",
+      "knowledge_gained": ["CODEWORD_ALPHA"],
+      "emotional_effect": "numbness",
+      "notes": "Trapped trying to defuse bomb. 214 attempts in one loop."
+    }
+  ],
+
+  "sample_knowledge_states": {
+    "empty": {
+      "facts": [],
+      "secrets": [],
+      "skills": [],
+      "hash": "0000000000000000"
+    },
+    "knows_sister": {
+      "facts": ["SISTER_AT_BANK"],
+      "secrets": [],
+      "skills": [],
+      "hash": "a1b2000000000000"
+    },
+    "knows_bomb": {
+      "facts": ["SISTER_AT_BANK", "BOMB_LOCATION"],
+      "secrets": ["DR_WEBB_IS_ALLY"],
+      "skills": [],
+      "hash": "a1b2c3d400000000"
+    },
+    "full_knowledge": {
+      "facts": ["SISTER_AT_BANK", "BOMB_LOCATION", "VILLAIN_IDENTITY", "ESCAPE_ROUTE", "GUARD_SCHEDULE"],
+      "secrets": ["DR_WEBB_IS_ALLY", "CODEWORD_ALPHA"],
+      "skills": ["bomb_defusal", "combat"],
+      "hash": "ffffffffffff0000"
+    }
+  },
+
+  "sample_decision_vectors": {
+    "stay_home_path": {
+      "binary": "00000100",
+      "decimal": 4,
+      "decisions": ["STAY_HOME"]
+    },
+    "cafe_path": {
+      "binary": "00000010",
+      "decimal": 2,
+      "decisions": ["GO_TO_CAFE"]
+    },
+    "bank_early_aggressive": {
+      "binary": "01011001",
+      "decimal": 89,
+      "decisions": ["GO_TO_BANK_EARLY", "CONFRONT_VILLAIN", "PRIORITIZE_BOMB", "CHASE_VILLAIN"]
+    },
+    "perfect_run": {
+      "binary": "01111001",
+      "decimal": 121,
+      "decisions": ["GO_TO_BANK_EARLY", "CONFRONT_VILLAIN", "PRIORITIZE_SISTER", "PRIORITIZE_BOMB", "CHASE_VILLAIN"]
+    }
+  },
+
+  "expected_hamming_distances": [
+    {"vec1": 4, "vec2": 2, "distance": 2, "note": "stay_home vs cafe"},
+    {"vec1": 89, "vec2": 121, "distance": 1, "note": "aggressive vs perfect"},
+    {"vec1": 4, "vec2": 121, "distance": 5, "note": "stay_home vs perfect"}
+  ]
+}
