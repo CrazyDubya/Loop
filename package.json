@@ -4,6 +4,9 @@
   "description": "Engine for managing time-loop narrative structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "loop": "dist/cli/loop-cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
