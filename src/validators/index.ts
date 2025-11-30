@@ -13,3 +13,24 @@ export {
   type InvariantViolation,
   type InvariantCheckResult,
 } from './Invariants';
+
+export {
+  detectKnowledgeContradictions,
+  detectOutcomeContradictions,
+  detectTemporalContradictions,
+  detectEquivalenceContradictions,
+  detectLoopContradictions,
+  type Contradiction,
+  type ContradictionReport,
+  type KnowledgeFact,
+  type KnowledgeState,
+} from './ContradictionDetector';
+
+export {
+  ConsistencyChecker,
+  quickLoopCheck,
+  type RepairSuggestion,
+  type ConsistencyIssue,
+  type ConsistencyReport,
+  type CheckOptions,
+} from './ConsistencyChecker';
