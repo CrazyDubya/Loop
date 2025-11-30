@@ -1,7 +1,7 @@
 """
 Engine components for Loop Engine.
 
-Modules: storage, validation, graph_engine, operators, policies, generator, compression
+Modules: storage, validation, graph_engine, operators, policies, generator, compression, narrative
 """
 
 from .storage import LoopStorage, create_storage
@@ -69,6 +69,26 @@ from .compression import (
     CompressionStats,
     CompressionManager,
 )
+from .narrative import (
+    # Detail levels
+    DetailLevel,
+    # Epochs
+    NarrativeEpoch,
+    CANONICAL_EPOCHS,
+    get_epoch_definition,
+    # Prose generation
+    ProseGenerator,
+    # Emotional arc
+    EmotionalPoint,
+    compute_emotional_arc,
+    find_emotional_peaks,
+    generate_emotional_summary,
+    # Story assembly
+    StorySection,
+    StoryAssembler,
+    # Main interface
+    NarrativeEngine,
+)
 
 __all__ = [
     # Storage
@@ -127,4 +147,17 @@ __all__ = [
     "detect_subloop_patterns",
     "CompressionStats",
     "CompressionManager",
+    # Narrative
+    "DetailLevel",
+    "NarrativeEpoch",
+    "CANONICAL_EPOCHS",
+    "get_epoch_definition",
+    "ProseGenerator",
+    "EmotionalPoint",
+    "compute_emotional_arc",
+    "find_emotional_peaks",
+    "generate_emotional_summary",
+    "StorySection",
+    "StoryAssembler",
+    "NarrativeEngine",
 ]
