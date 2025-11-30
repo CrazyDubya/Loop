@@ -1171,3 +1171,1198 @@ The million loops feel real because:
 - The million: Literally accountable through the tracking system
 
 This is skeleton—prose would flesh out the anchor loops into scenes, montage prose would summarize the classes, and the reader would experience what feels like a million attempts while you've only written a few hundred thousand words.
+
+---
+
+12. Formal Data Schemas
+
+Machine-readable specifications for all data structures. Use these as templates for your tracking system, whether that's a spreadsheet, database, or plain text files.
+
+12.1. Core Loop Schema (YAML)
+
+```yaml
+# loop.schema.yaml
+Loop:
+  type: object
+  required: [id, epoch, outcome_hash, knowledge_id]
+  properties:
+    id:
+      type: string
+      pattern: "^L_[0-9]{4,7}$"
+      description: "Unique loop identifier (e.g., L_0001, L_52000)"
+
+    parent_id:
+      type: string
+      nullable: true
+      description: "ID of the loop this one derives from"
+
+    epoch:
+      type: string
+      enum: [denial, mapping, obsession, ruthless, synthesis, custom]
+      description: "Psychological epoch this loop belongs to"
+
+    key_choices:
+      type: string
+      pattern: "^[A-Z][01]( [A-Z][01])*$"
+      description: "Decision vector (e.g., 'A1 B0 C1 D0 E0')"
+
+    outcome_hash:
+      type: string
+      description: "Short identifier for the loop's ending state"
+
+    knowledge_id:
+      type: string
+      pattern: "^K_[0-9]{3,4}$"
+      description: "Reference to knowledge state at loop end"
+
+    mood_id:
+      type: string
+      pattern: "^M_[0-9]{3,4}$"
+      description: "Reference to emotional state at loop end"
+
+    tags:
+      type: array
+      items:
+        type: string
+      description: "Searchable labels (e.g., ['anchor', 'breakthrough'])"
+
+    subjective_duration:
+      type: number
+      minimum: 0.1
+      default: 1.0
+      description: "Experienced time in day-equivalents"
+
+    sub_loop_load:
+      type: integer
+      minimum: 0
+      default: 0
+      description: "Count of significant sub-loop iterations"
+
+    texture_bits:
+      type: object
+      properties:
+        violence_level: { type: integer, minimum: 0, maximum: 3 }
+        emotional_peak: { enum: [grief, rage, hope, numbness, peace] }
+        pacing: { enum: [rushed, methodical, aimless, reactive] }
+        social_density: { enum: [alone, sparse, moderate, crowded] }
+
+    narrative_hook:
+      type: string
+      maxLength: 200
+      description: "One-line summary for quick reference"
+```
+
+12.2. Equivalence Class Schema
+
+```yaml
+# equivalence_class.schema.yaml
+EquivalenceClass:
+  type: object
+  required: [class_id, outcome_hash, count]
+  properties:
+    class_id:
+      type: string
+      pattern: "^C_[0-9]{3,4}$"
+
+    outcome_hash:
+      type: string
+      description: "The shared ending state"
+
+    knowledge_delta:
+      type: string
+      nullable: true
+      description: "What (if anything) is learned in these loops"
+
+    mood_delta:
+      type: integer
+      minimum: -10
+      maximum: 10
+      description: "Net emotional change (-10 devastating, +10 euphoric)"
+
+    count:
+      type: integer
+      minimum: 1
+      description: "How many loops belong to this class"
+
+    sample_loops:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 5
+      description: "Representative loop IDs"
+
+    epoch_distribution:
+      type: object
+      additionalProperties:
+        type: integer
+      description: "Count per epoch (e.g., {denial: 50, mapping: 200})"
+
+    narrative_summary:
+      type: string
+      description: "How this class reads in prose"
+```
+
+12.3. Parametric Family Schema
+
+```yaml
+# parametric_family.schema.yaml
+ParametricFamily:
+  type: object
+  required: [family_id, strategy_type, estimated_count]
+  properties:
+    family_id:
+      type: string
+      pattern: "^FAM_[0-9]{3}$"
+
+    strategy_type:
+      type: string
+      enum: [brute_force, stealth, persuasion, withdrawal, chaos]
+
+    risk_level:
+      type: string
+      enum: [low, medium, high, suicidal]
+
+    key_choice_pattern:
+      type: string
+      description: "Regex/wildcard pattern (e.g., 'A1 B* C1 D* E0')"
+
+    timing_variant:
+      type: string
+      enum: [early, standard, delayed, reactive]
+
+    applicable_region:
+      type: string
+      description: "Day graph region (e.g., 'afternoon_sector t8-t14')"
+
+    outcome_distribution:
+      type: object
+      additionalProperties:
+        type: number
+        minimum: 0
+        maximum: 100
+      description: "Outcome percentages (must sum to 100)"
+
+    knowledge_distribution:
+      type: object
+      additionalProperties:
+        type: number
+      description: "What can be learned and probability"
+
+    sample_loops:
+      type: array
+      items:
+        type: string
+
+    estimated_count:
+      type: integer
+      minimum: 1
+```
+
+12.4. Day Graph Event Schema
+
+```yaml
+# event.schema.yaml
+Event:
+  type: object
+  required: [event_id, time_slot, event_type]
+  properties:
+    event_id:
+      type: string
+      pattern: "^E[0-9]{2}$"
+
+    time_slot:
+      type: string
+      pattern: "^t[0-9]{1,2}$"
+
+    name:
+      type: string
+      maxLength: 50
+
+    description:
+      type: string
+
+    event_type:
+      type: string
+      enum: [critical, gating, color, background, absorbing]
+
+    requires:
+      type: array
+      items:
+        type: string
+      description: "Event IDs or knowledge IDs that must exist"
+
+    prevents:
+      type: array
+      items:
+        type: string
+      description: "Event IDs this makes impossible"
+
+    enables:
+      type: array
+      items:
+        type: string
+      description: "Event IDs this unlocks"
+
+    knowledge_granted:
+      type: string
+      nullable: true
+
+    is_absorbing:
+      type: boolean
+      default: false
+
+    is_death:
+      type: boolean
+      default: false
+```
+
+12.5. Knowledge State Schema
+
+```yaml
+# knowledge_state.schema.yaml
+KnowledgeState:
+  type: object
+  required: [knowledge_id]
+  properties:
+    knowledge_id:
+      type: string
+      pattern: "^K_[0-9]{3,4}$"
+
+    facts:
+      type: array
+      items:
+        type: object
+        properties:
+          fact_id: { type: string }
+          content: { type: string }
+          learned_in_loop: { type: string }
+          verified: { type: boolean, default: true }
+
+    skills:
+      type: array
+      items:
+        type: object
+        properties:
+          skill_id: { type: string }
+          name: { type: string }
+          proficiency: { type: number, minimum: 0, maximum: 1 }
+          freshness: { type: number, minimum: 0, maximum: 1 }
+          last_practiced_loop: { type: string }
+
+    beliefs:
+      type: array
+      items:
+        type: object
+        properties:
+          belief_id: { type: string }
+          content: { type: string }
+          confidence: { type: number, minimum: 0, maximum: 1 }
+
+    traumas:
+      type: array
+      items:
+        type: object
+        properties:
+          trauma_id: { type: string }
+          locked_knowledge: { type: string }
+          trigger: { type: string }
+          can_unlock: { type: boolean }
+
+    contradictions:
+      type: array
+      items:
+        type: object
+        properties:
+          fact_a: { type: string }
+          fact_b: { type: string }
+          resolution: { type: string, nullable: true }
+```
+
+12.6. Psychological State Schema
+
+```yaml
+# psychological_state.schema.yaml
+PsychologicalState:
+  type: object
+  required: [mood_id, fatigue_state]
+  properties:
+    mood_id:
+      type: string
+      pattern: "^M_[0-9]{3,4}$"
+
+    fatigue_state:
+      type: string
+      enum: [raw, calloused, numb, dissociated, transcendent]
+
+    identity_drift:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "0 = same as loop 1, 1 = unrecognizable"
+
+    npc_view:
+      type: string
+      enum: [full_personhood, recurring_characters, behavioral_patterns, set_dressing, re_personified]
+
+    moral_framework:
+      type: string
+      enum: [consequentialist, virtue_ethics, kantian, nihilist, mixed]
+
+    dominant_emotions:
+      type: array
+      items:
+        type: string
+      maxItems: 3
+
+    coping_mechanisms:
+      type: array
+      items:
+        type: string
+
+    breaking_points:
+      type: array
+      items:
+        type: object
+        properties:
+          trigger: { type: string }
+          response: { type: string }
+```
+
+---
+
+13. Query Language for Loop Interrogation
+
+A simple query syntax for finding loops, classes, and patterns. Can be implemented as spreadsheet filters, grep patterns, or actual code.
+
+13.1. Basic Query Syntax
+
+```
+FIND <entity> WHERE <conditions> [ORDER BY <field>] [LIMIT <n>]
+
+Entities: loop, class, family, event, knowledge
+Conditions: field = value, field > value, field CONTAINS value, field IN [list]
+```
+
+13.2. Example Queries
+
+```
+# All anchor loops in the obsession epoch
+FIND loop WHERE epoch = "obsession" AND tags CONTAINS "anchor"
+
+# Loops where Elena survives
+FIND loop WHERE outcome_hash CONTAINS "elena_survives"
+
+# Classes with more than 10,000 loops
+FIND class WHERE count > 10000 ORDER BY count DESC
+
+# All stealth families
+FIND family WHERE strategy_type = "stealth"
+
+# Loops with high subjective duration (sub-loop hell)
+FIND loop WHERE subjective_duration > 10 ORDER BY subjective_duration DESC
+
+# Knowledge states that include trauma
+FIND knowledge WHERE traumas IS NOT EMPTY
+
+# Events that require prior knowledge
+FIND event WHERE requires IS NOT EMPTY
+
+# Loops between loop 5000 and 6000
+FIND loop WHERE id >= "L_5000" AND id <= "L_6000"
+
+# All loops tagged as "breakthrough" or "moral_nadir"
+FIND loop WHERE tags IN ["breakthrough", "moral_nadir"]
+```
+
+13.3. Aggregate Queries
+
+```
+# Total loops per epoch
+COUNT loop GROUP BY epoch
+
+# Average subjective_duration per epoch
+AVG loop.subjective_duration GROUP BY epoch
+
+# Sum of all class counts (should equal ~1,000,000)
+SUM class.count
+
+# Distribution of outcomes
+COUNT loop GROUP BY outcome_hash ORDER BY count DESC LIMIT 10
+```
+
+13.4. Relationship Queries
+
+```
+# All loops derived from loop L_0047
+FIND loop WHERE parent_id = "L_0047"
+
+# The ancestry chain of a specific loop
+TRACE loop "L_52000" BY parent_id
+
+# All loops in a specific class
+FIND loop WHERE id IN (SELECT sample_loops FROM class WHERE class_id = "C_047")
+
+# Events that enable the bomb disabling
+FIND event WHERE enables CONTAINS "E07"
+```
+
+13.5. Narrative Queries
+
+```
+# Find good montage candidates (high-count classes with clear summary)
+FIND class WHERE count > 5000 AND narrative_summary IS NOT NULL
+
+# Find dramatic anchor candidates (high emotional weight)
+FIND loop WHERE mood_delta < -3 AND tags CONTAINS "anchor"
+
+# Find epoch transition moments
+FIND loop WHERE tags CONTAINS "epoch_transition" ORDER BY id
+```
+
+13.6. Implementing Queries
+
+In a spreadsheet:
+- Use filters and COUNTIF/SUMIF functions
+- Create named ranges for common queries
+- Use pivot tables for aggregate queries
+
+In plain text files:
+- Use grep with regex patterns
+- Create shell scripts for common queries
+- Use jq for JSON-formatted data
+
+In a database:
+- Direct SQL translation
+- Create views for common queries
+- Index on frequently-queried fields (epoch, outcome_hash, tags)
+
+---
+
+14. Psychology and Emotion Tracking Framework
+
+Formalizing the emotional and psychological systems referenced throughout the document.
+
+14.1. Mood Taxonomy
+
+```
+MOOD CATEGORIES (broad):
+  positive: hope, peace, determination, connection, triumph
+  negative: grief, rage, despair, numbness, self_loathing
+  neutral: detachment, curiosity, resignation, acceptance
+
+MOOD INTENSITIES:
+  1: Faint (background feeling)
+  2: Moderate (noticeable but not controlling)
+  3: Strong (affects decisions)
+  4: Overwhelming (dominates the loop)
+
+MOOD_ID ENCODING:
+  M_[category][intensity][variant]
+  Example: M_grief_3_a = strong grief, variant A
+
+  Or simpler numeric:
+  M_001 through M_200, with a lookup table
+```
+
+14.2. Fatigue State Transitions
+
+```
+STATE MACHINE:
+
+raw (loops 1-50)
+  ↓ [repeated trauma without resolution]
+calloused (loops 50-500)
+  ↓ [continued failure, growing detachment]
+numb (loops 500-5000)
+  ↓ [total loss of emotional response]
+dissociated (loops 5000+)
+  ↓ [integration event OR permanent dissociation]
+transcendent (optional endpoint)
+
+TRIGGERS FOR TRANSITIONS:
+  raw → calloused:
+    - 20+ deaths without breakthrough
+    - First intentional harm to NPC
+    - First "I don't care anymore" moment
+
+  calloused → numb:
+    - 100+ loops without emotional engagement
+    - First torture/atrocity loop
+    - Complete loss of hope for "good" outcome
+
+  numb → dissociated:
+    - 1000+ loops in numb state
+    - First loop where character forgets why they're trying
+    - Complete detachment from original identity
+
+  dissociated → transcendent:
+    - Deliberate choice to re-engage
+    - Connection with NPC that pierces numbness
+    - Finding meaning outside the loop's "goal"
+
+REVERSE TRANSITIONS (rare but possible):
+  Any state → raw: Profound unexpected event (NPC says something never heard before)
+  dissociated → calloused: Deliberate emotional re-engagement
+```
+
+14.3. Identity Drift Calculation
+
+```
+identity_drift: 0.0 to 1.0
+
+FACTORS THAT INCREASE DRIFT:
+  +0.001 per loop in numb/dissociated state
+  +0.01 per atrocity committed
+  +0.05 per complete strategy paradigm shift
+  +0.02 per 1000 loops of any kind
+
+FACTORS THAT DECREASE DRIFT (slower):
+  -0.005 per loop of deliberate "original self" behavior
+  -0.01 per genuine connection with NPC
+  -0.02 per deliberate rejection of ruthless solution
+
+DRIFT THRESHOLDS:
+  0.0-0.2: Recognizably original self
+  0.2-0.4: Changed but continuous
+  0.4-0.6: Significantly different person
+  0.6-0.8: Barely recognizable
+  0.8-1.0: Effectively new identity
+```
+
+14.4. NPC Perception Tracking
+
+```
+npc_view per NPC (not global):
+
+SCALE:
+  5: full_personhood - "She's a real person"
+  4: recurring_character - "She's the same person, reset"
+  3: behavioral_pattern - "She always does X at time Y"
+  2: set_dressing - "Just background"
+  1: object - "Obstacle or tool"
+  [recovery]
+  6: re_personified - "I forgot she was real"
+
+FACTORS:
+  Decreases with:
+    - Repeated identical interactions
+    - Using NPC for information extraction
+    - NPC death without emotional response
+
+  Increases with:
+    - Novel NPC behavior (rare)
+    - Deliberate attention to NPC interiority
+    - NPC-initiated connection
+```
+
+14.5. Emotional Residue System
+
+```
+Not all emotional events reset with the loop.
+The character carries cumulative psychological weight.
+
+RESIDUE TYPES:
+  grief_load: Accumulates with each witnessed death
+  guilt_load: Accumulates with harmful actions
+  hope_debt: Accumulates with near-misses
+  connection_memory: Positive residue from genuine moments
+
+RESIDUE DECAY:
+  grief_load: Slow decay (0.1% per loop)
+  guilt_load: Very slow decay (0.01% per loop) - guilt lingers
+  hope_debt: Moderate decay (1% per loop) - disappointment fades
+  connection_memory: No decay - positive moments remembered
+
+RESIDUE EFFECTS:
+  High grief_load (>1000): Default mood shifts negative
+  High guilt_load (>100): Triggers avoidance behaviors
+  High hope_debt (>500): Cynicism, refuses to hope
+  High connection_memory: Anchors identity, resists drift
+```
+
+---
+
+15. Templates and Worksheets
+
+Ready-to-use formats for tracking your loop story.
+
+15.1. Master Loop Tracking Sheet
+
+```
+| LoopID | Epoch | Parent | Strategy | KeyChoices | Outcome | Knowledge | Mood | Class | SubjDur | Tags | Hook |
+|--------|-------|--------|----------|------------|---------|-----------|------|-------|---------|------|------|
+| L_0001 | denial | - | reactive | A0B0C0D0E0 | explosion | K_000 | M_001 | C_001 | 1.0 | first,anchor | First loop |
+| L_0047 | denial | L_0046 | cause | A1B0C0D0E0 | explosion | K_003 | M_007 | C_047 | 1.0 | anchor | First warning |
+| ... | | | | | | | | | | | |
+```
+
+15.2. Equivalence Class Sheet
+
+```
+| ClassID | Outcome | KnowledgeDelta | MoodDelta | Count | Samples | NarrativeSummary |
+|---------|---------|----------------|-----------|-------|---------|------------------|
+| C_001 | elena_dies_explosion | null | -1 | 412000 | L_0001,L_0015 | "The same explosion, every time" |
+| C_047 | warned_dies_anyway | warnings_fail | -3 | 23000 | L_0047,L_0052 | "She never listened" |
+| ... | | | | | | |
+```
+
+15.3. Day Graph Event Sheet
+
+```
+| EventID | Time | Name | Type | Requires | Prevents | Enables | Knowledge | Absorbing |
+|---------|------|------|------|----------|----------|---------|-----------|-----------|
+| E01 | t1 | Warn Elena | critical | - | - | - | - | N |
+| E02 | t2 | Spot van | critical | - | - | E03,E05 | van_exists | N |
+| E03 | t3 | Database search | gating | E02 | - | E05 | suspects | N |
+| E04 | t4 | Meet informant | critical | K_informant_exists | - | E05 | partial_truth | N |
+| E05 | t5 | Confront Reeves | critical | E03|E04 | - | E07 | bomb_location | N |
+| E07 | t7 | Disable bomb | critical | E05,E10 | E08 | A05 | - | Y |
+| E08 | t8 | Explosion | absorbing | - | - | - | - | Y |
+| ... | | | | | | | | |
+```
+
+15.4. Epoch Planning Sheet
+
+```
+EPOCH: _____________ (name)
+Loop Range: _______ to _______
+Total Loops: _______
+
+PSYCHOLOGY:
+  Starting fatigue_state: _______
+  Ending fatigue_state: _______
+  Dominant emotions: _______
+  Identity drift change: +_______
+
+STRATEGY:
+  Dominant approach: _______
+  Key tactics tried: _______
+  What fails: _______
+  What succeeds: _______
+
+KNOWLEDGE:
+  Entering with: _______
+  Gained during: _______
+  Exiting with: _______
+
+ANCHOR LOOPS (list 5-20):
+  □ _______ - _______
+  □ _______ - _______
+  □ _______ - _______
+  ...
+
+EQUIVALENCE CLASSES (major ones):
+  Class ___: _______ loops - "_______"
+  Class ___: _______ loops - "_______"
+  ...
+
+SUB-LOOP INTENSITY: □ Light  □ Moderate  □ Heavy
+```
+
+15.5. Anchor Loop Design Card
+
+```
+╔════════════════════════════════════════════╗
+║ LOOP: L_______     EPOCH: _______          ║
+╠════════════════════════════════════════════╣
+║ PURPOSE: Why does this loop exist?         ║
+║ _________________________________________  ║
+║                                            ║
+║ KEY CHOICES: __ __ __ __ __                ║
+║                                            ║
+║ OUTCOME: _______________________________   ║
+║ KNOWLEDGE GAINED: ______________________   ║
+║ MOOD AT END: ___________________________   ║
+║                                            ║
+║ NARRATIVE HOOK:                            ║
+║ _________________________________________  ║
+║ _________________________________________  ║
+║                                            ║
+║ BELONGS TO CLASS: C_____                   ║
+║ DERIVED FROM: L_____ (if any)              ║
+║                                            ║
+║ TAGS: [ ] anchor  [ ] breakthrough         ║
+║       [ ] atrocity [ ] epoch_transition    ║
+║       [ ] ___________                      ║
+╚════════════════════════════════════════════╝
+```
+
+15.6. Sub-Loop Macro Sheet
+
+```
+| MacroID | ParentLoop | TimeWindow | Attempts | BestOutcome | Knowledge | EmotionalEffect |
+|---------|------------|------------|----------|-------------|-----------|-----------------|
+| MACRO_001 | L_5847 | t6-t7 | 892 | secondary_device | secondary_exists | devastating |
+| ... | | | | | | |
+```
+
+---
+
+16. Quick-Start Guide: Your First 10 Anchor Loops
+
+A condensed walkthrough for getting started immediately.
+
+16.1. Before You Write Anything
+
+Answer these five questions:
+1. What is the loop day? (When does it start/end?)
+2. What is the central tragedy? (What goes wrong that the character wants to fix?)
+3. What is the "impossible" goal? (What would "winning" look like?)
+4. Who is the character at loop 1?
+5. Who might they become by loop 1,000,000?
+
+16.2. Your First 10 Anchors
+
+Design these loops in order. Don't write prose yet—just fill out the cards.
+
+LOOP 1: The Innocent Day
+- The character experiences the day "normally"
+- The tragedy happens
+- They go to sleep not knowing what's coming
+- PURPOSE: Establishes baseline
+
+LOOP 2-5: The Dawning
+- Pick one loop where they first realize it's repeating
+- Pick one loop where they try obvious solution #1
+- Pick one loop where obvious solution #1 fails
+- PURPOSE: Establishes the rules
+
+LOOP ~50: First Strategy Shift
+- The moment they stop reacting and start planning
+- First time they deliberately do something "wrong" to learn
+- PURPOSE: Epoch 1 → Epoch 2 transition
+
+LOOP ~200: First Breakthrough
+- They learn something crucial
+- It feels like progress
+- PURPOSE: Justifies the mapping epoch
+
+LOOP ~500: The Obsession Begins
+- They fixate on one approach/person/goal
+- Everything else becomes secondary
+- PURPOSE: Epoch 2 → Epoch 3 transition
+
+LOOP ~2000: The Near Miss
+- They almost succeed
+- Failure is devastating precisely because of how close it was
+- PURPOSE: Peak of obsession epoch
+
+LOOP ~5000: The Breaking Point
+- Something snaps
+- They do something they never thought they'd do
+- PURPOSE: Epoch 3 → Epoch 4 transition
+
+LOOP ~50000: The Atrocity (optional but powerful)
+- They commit an act that horrifies them in retrospect
+- SUCCESS achieved through unacceptable means
+- PURPOSE: Nadir of ruthless epoch
+
+LOOP ~200000: The First Quiet
+- After countless ruthless loops, one where they just... stop
+- They sit with someone. They don't try to fix anything.
+- PURPOSE: Epoch 4 → Epoch 5 transition
+
+LOOP 1,000,000: The End
+- However you choose to end it
+- May or may not "solve" the original problem
+- Definitely resolves the character's arc
+- PURPOSE: Resolution
+
+16.3. Now Fill In The Gaps
+
+Between these 10 anchors, you have the skeleton. Now:
+1. For each epoch, add 5-15 more anchors that show the texture
+2. Define equivalence classes around each anchor
+3. Estimate loop counts per class
+4. Check your math (should approach 1,000,000)
+
+16.4. Only Then Write Prose
+
+Start with Loop 1. Write it fully.
+Then write Loop 1,000,000. Write it fully.
+Now you know where you're going.
+Fill in the rest based on which loops the story needs most.
+
+---
+
+17. Visual Representations
+
+ASCII diagrams for the Marcus Chen example.
+
+17.1. Day Graph Visualization
+
+```
+                            THE DAY OF OCTOBER 15TH
+
+    t0        t1        t2        t3        t4        t5        t6        t7        t8
+    6AM       7AM       8AM       9AM       12PM      2PM       4PM       5PM       6:03PM
+    │         │         │         │         │         │         │         │         │
+    ▼         ▼         ▼         ▼         ▼         ▼         ▼         ▼         ▼
+
+    [WAKE]────┬────────────────────────────────────────────────────────────────────────►
+              │
+              ├──[E01: Warn Elena]─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┐
+              │                                                       │
+              ├──[E20: Coffee]                                        │
+              │                                                       ▼
+              └───────────[E02: Spot Van]──┬──────────────────[E06: Mall Entrance]
+                              │            │                          │
+                              │            │                          │
+                              ▼            │                          │
+                         [E03: Database]   │                          │
+                              │            │                          │
+                              └──────┬─────┘                          │
+                                     │                                │
+                                     ▼                                │
+                              [E04: Informant]                        │
+                                     │                                │
+                                     └──────┬─────────────────────────┤
+                                            │                         │
+                                            ▼                         │
+                                     [E05: Confront Reeves]           │
+                                            │                         │
+                                     ┌──────┴──────┐                  │
+                                     │             │                  │
+                                     ▼             ▼                  │
+                              [E10: Get Tools]  [A03: Killed]         │
+                                     │                                │
+                                     └──────────────┬─────────────────┤
+                                                    │                 │
+                                                    ▼                 ▼
+                                             [E07: Disable]───►[A05: SAVED ✓]
+                                                    │
+                                             [E09: Evacuate]──►[A07: Partial ✓]
+                                                    │
+                                                    │         [E08: EXPLOSION]
+                                                    │                 │
+                                                    └────────────────►│
+                                                                      ▼
+                                                               [A01: Dead ✗]
+
+    LEGEND:
+    [Exx] = Event                    ─────► = Enables
+    [Axx] = Absorbing State          ─ ─ ► = Weak connection
+    ✓ = Success ending               ───┤  = Prevents
+    ✗ = Failure ending
+```
+
+17.2. Epoch Timeline
+
+```
+    MARCUS CHEN: ONE MILLION LOOPS
+
+    Loop #    1         50        500       5K        50K       200K      1M
+              │         │         │         │         │         │         │
+              ▼         ▼         ▼         ▼         ▼         ▼         ▼
+    ══════════╪═════════╪═════════╪═════════╪═════════╪═════════╪═════════╪══
+              │         │         │         │         │         │         │
+    EPOCH 1   │▓▓▓▓▓▓▓▓▓│         │         │         │         │         │
+    DENIAL    │ 30 loops│         │         │         │         │         │
+              │         │         │         │         │         │         │
+    EPOCH 2   │         │▓▓▓▓▓▓▓▓▓│         │         │         │         │
+    MAPPING   │         │370 loops│         │         │         │         │
+              │         │         │         │         │         │         │
+    EPOCH 3   │         │         │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│         │         │
+    OBSESSION │         │         │    7,600 loops    │         │         │
+              │         │         │         │         │         │         │
+    EPOCH 4   │         │         │         │         │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│
+    RUTHLESS  │         │         │         │         │  192,000 loops    │
+              │         │         │         │         │         │         │
+    EPOCH 5   │         │         │         │         │         │         │▓▓▓▓▓▓▓▓▓
+    SYNTHESIS │         │         │         │         │         │ 800,000 loops
+              │         │         │         │         │         │         │
+    ══════════╪═════════╪═════════╪═════════╪═════════╪═════════╪═════════╪══
+              │         │         │         │         │         │         │
+    FATIGUE:  raw       calloused numb──────────────────────────dissociated──►transcendent
+              │         │         │         │         │         │         │
+    ANCHORS:  ●●●●●     ●●●●●●●●  ●●●●●●●●●●●●●●●●●●  ●●●●●●●●●●●●●●●●●●  ●●●●●●●●●●●●●●
+              5-7       15-20     20-30               25-35               30-40
+
+    KEY ANCHORS:
+    ● L_0001: First loop (innocent day)
+    ● L_0047: First warning attempt
+    ● L_0347: Van discovery
+    ● L_5847: Sub-loop hell (892 iterations)
+    ● L_52000: The atrocity (torture loop)
+    ● L_800000: The return (coffee with Elena)
+```
+
+17.3. Equivalence Class Distribution
+
+```
+    LOOP DISTRIBUTION BY EQUIVALENCE CLASS
+
+    Class C_001: Standard explosion death
+    ████████████████████████████████████████████████████████████████████░░░░░░░░  412,000 (41.2%)
+
+    Class C_047: Warned, dies anyway
+    █████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   23,000 (2.3%)
+
+    Class C_089: Evacuated, secondary device
+    █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    4,500 (0.45%)
+
+    Class C_150: Bomb disabled, Elena survives
+    ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    8,000 (0.8%)
+
+    [~196 other classes]
+    ████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░  552,500 (55.25%)
+
+    TOTAL: 1,000,000 loops
+```
+
+---
+
+18. Sample Prose Passages
+
+How the mechanical systems translate into actual narrative.
+
+18.1. Montage Compression (Class C_001)
+
+MECHANICAL:
+```
+Class C_001: count=412,000, outcome="elena_dies_explosion"
+```
+
+PROSE:
+> Four hundred thousand loops ended the same way.
+>
+> He stopped counting after the first ten thousand. Stopped feeling it after fifty thousand. The explosion became a punctuation mark, not an event. He would be mid-thought—planning the next loop, reviewing what he'd learned—and then the rumble would come, and then the silence, and then he would wake up in his bed and it would be October 15th again.
+>
+> Four hundred thousand mornings. Four hundred thousand identical sunrises. Four hundred thousand times he didn't bother to save her, because he was saving her in different ways now, in loops that mattered.
+>
+> Those loops didn't matter. But they still happened.
+
+18.2. Equivalence Class with Emotional Weight (Class C_089)
+
+MECHANICAL:
+```
+Class C_089: count=4,500, outcome="elena_dies_secondary_device", knowledge_delta="secondary_exists"
+```
+
+PROSE:
+> Four thousand five hundred times, he got her out of the building.
+>
+> The first time it happened—loop 5,847, though he didn't know the number then—he thought he'd finally done it. She was outside. The mall was behind them. He was already imagining what he'd say, how he'd explain, whether she'd believe him about the loop if he had proof—
+>
+> The parking structure exploded.
+>
+> Secondary device. He learned that term later, from a bomb disposal manual he memorized in loop 8,000-something. They'd planned for exactly this. Someone tries to evacuate the target, so you put a backup where evacuees go.
+>
+> Four thousand five hundred times he got her out. Four thousand five hundred times it didn't matter.
+
+18.3. Anchor Loop (L_5847: Sub-loop Hell)
+
+MECHANICAL:
+```
+Loop L_5847: sub_loop_load=892, subjective_duration=47.0, tags=["sub_loop_intensive"]
+```
+
+PROSE:
+> Loop 5,847 lasted forty-seven days.
+>
+> Not technically. Technically it was still October 15th, still the same twelve hours between waking and explosion. But somewhere around the two hundredth time he rewound to the mall entrance, Marcus stopped tracking calendar time and started tracking attempt time.
+>
+> Eight hundred ninety-two attempts to change one conversation.
+>
+> "Elena, we need to leave."
+> "Elena, trust me."
+> "Elena, I've done this before. I know what happens."
+> "Elena, I love you. Please."
+> "Elena—" [rewind]
+> "Elena—" [rewind]
+> "Elena—" [rewind]
+>
+> He tried every word in every order. He tried silence. He tried grabbing her. He tried causing a distraction—fire alarm, false gunshot, medical emergency. He tried telling her the truth, the whole truth, the specific truth of the bomb in the food court and the people who put it there.
+>
+> She left with him exactly once. Attempt 891. She looked at something in his eyes and said "Okay. Okay, let's go."
+>
+> They made it to the parking structure.
+>
+> Attempt 892 was him screaming at the sky for seventeen minutes before the loop reset.
+
+18.4. The Atrocity Loop (L_52000)
+
+MECHANICAL:
+```
+Loop L_52000: tags=["torture_loop", "moral_nadir"], mood_id=M_078 (self-loathing)
+```
+
+PROSE:
+> There are things you tell yourself you'd never do.
+>
+> Then there's loop 52,000.
+>
+> He didn't plan it. Or rather—he planned all of it, methodically, over the course of two hundred loops of reconnaissance. Where Reeves would be at 2 PM. How many guards. What tools he'd need. How long it would take.
+>
+> What he didn't plan was the part where Reeves begged.
+>
+> "Please—I have a family—"
+>
+> "So did I," Marcus said, and he didn't recognize his own voice, and he didn't stop.
+>
+> Reeves told him everything. Bomb location. Deactivation sequence. Who hired him. Why. Everything.
+>
+> Elena died at 6:03 PM anyway, because Marcus was on the other side of the city covered in someone else's blood, because he'd needed to know and this was the only way to know.
+>
+> He went to bed that night with the information he needed.
+>
+> He woke up on October 15th and looked in the mirror and didn't recognize the person looking back.
+
+18.5. The Return (L_800000)
+
+MECHANICAL:
+```
+Loop L_800000: tags=["return_to_humanity", "anchor"], mood_id=M_150 (bittersweet peace)
+```
+
+PROSE:
+> Eight hundred thousand loops.
+>
+> He did the math once: if each loop was truly twenty-four hours, he'd been living for over two thousand years. If you counted the sub-loops, the number was worse. If you counted the deaths—his own, hers, everyone else's—the number was incomprehensible.
+>
+> He'd saved her, technically. Dozens of times. Hundreds. He knew exactly how to do it now. He could do it in his sleep. (He had done it in his sleep, running through the motions while his mind was somewhere else entirely.)
+>
+> But the loop always reset.
+>
+> So on loop 800,000, he didn't try to save her.
+>
+> "Coffee?" she said, surprised to see him at her door at 7 AM. "Sure, come in. I've got an hour before—"
+>
+> "I know," he said. "I just wanted to talk."
+>
+> They talked. She told him about her job, about the guy she was maybe seeing, about their parents and how Mom had called last week asking about grandchildren again. She told him she was worried about him—he seemed different lately. Distant.
+>
+> "I've been through a lot," he said.
+>
+> "Want to talk about it?"
+>
+> He almost laughed. Eight hundred thousand loops of talking about it, and no one remembered any of it except him.
+>
+> "Not today," he said. "Today I just want to listen."
+>
+> She smiled. She talked. He listened.
+>
+> At 6:03 PM, she died.
+>
+> At 6:04 PM, he sat in the wreckage and realized he wasn't angry anymore.
+
+---
+
+19. Anti-Patterns: Common Mistakes in Loop Stories
+
+What to avoid when using this system.
+
+19.1. The Counting Trap
+
+MISTAKE: Treating loop counts as meaningful in themselves.
+"He'd been through 547,832 loops" tells us nothing without context.
+
+FIX: Counts matter relative to psychology and progress.
+"He'd been numb for three hundred thousand loops" is meaningful.
+"He'd tried that exact approach a thousand times" is meaningful.
+Raw numbers without emotional or strategic context are not.
+
+19.2. The Perfect Memory Problem
+
+MISTAKE: Character remembers every loop with perfect clarity.
+This becomes implausible past a few hundred loops and makes the million feel fake.
+
+FIX: Use compressed memory (Section 9.4).
+Character remembers anchor loops vividly, classes as "gists," recent loops clearly, old loops as blur. This matches your tracking system and feels psychologically real.
+
+19.3. The Monotonic Progress Fallacy
+
+MISTAKE: Character steadily improves with each loop.
+This makes a million loops unnecessary—why not solve it in a thousand?
+
+FIX: Progress is non-linear.
+- Long plateaus of "same result, different approach"
+- Breakthroughs followed by new obstacles
+- Psychological regression (learning something that makes things worse)
+- Strategic dead ends that consume thousands of loops
+
+The million loops exists because most of them don't help.
+
+19.4. The NPC Problem
+
+MISTAKE: NPCs behave identically every loop with no variation.
+This makes them feel like game NPCs, not people, and undermines dramatic weight.
+
+FIX: NPCs are deterministic but complex.
+- Same inputs → same outputs, but the character rarely gives identical inputs
+- Small variations in timing/phrasing cascade into different NPC responses
+- NPCs have "hidden state" (mood that day, random events) that character must learn
+
+The character eventually masters NPC behavior, but it takes thousands of loops, not ten.
+
+19.5. The Skipped Middle
+
+MISTAKE: Story shows loops 1-50 in detail, then jumps to loop 500,000.
+The reader doesn't believe in the intervening loops.
+
+FIX: Use montage and anchor distribution.
+- Show anchors from every epoch
+- Use montage prose to make middle loops feel real
+- The equivalence class system lets you reference middle loops without writing them
+- "He tried that for three thousand loops" is believable if you showed earlier examples
+
+19.6. The Emotional Reset
+
+MISTAKE: Character's psychology resets between chapters/sections.
+They're devastated at the end of chapter 3, fine at the start of chapter 4.
+
+FIX: Psychological continuity is the through-line.
+- Track fatigue_state explicitly
+- Mood changes should be gradual (except at breaking points)
+- Emotional residue accumulates across the story
+- The reader should be able to trace how the character became who they are
+
+19.7. The Stakes Collapse
+
+MISTAKE: Once the reader knows loops reset, nothing feels meaningful.
+"Who cares if Elena dies? She'll be back tomorrow."
+
+FIX: Stakes are internal, not external.
+- What matters is what the character becomes
+- Each loop's choices affect psychological state
+- Cumulative trauma is real even if events reset
+- The "million loops" weight is carried by the character, not the plot
+
+19.8. The Easy Transcendence
+
+MISTAKE: Character reaches "synthesis" epoch in one revelation.
+They're ruthless in chapter 5, enlightened in chapter 6.
+
+FIX: Transcendence is earned through repetition.
+- Synthesis epoch should be the longest in loop count
+- Multiple false starts at transcendence
+- Relapse into old patterns
+- Gradual, non-linear growth toward acceptance
+
+Eight hundred thousand loops in synthesis is not padding—it's the actual work of becoming human again.
+
+19.9. The Solved Loop
+
+MISTAKE: Story ends when character "beats" the loop.
+They save Elena, loop breaks, the end.
+
+FIX: The loop may or may not break—but that's not the point.
+- Character arc resolves regardless of plot resolution
+- "Winning" might mean acceptance, not success
+- The reader should feel the million loops were necessary for psychological transformation, not just puzzle-solving
+
+Some of the best loop stories never break the loop. The ending is the character, not the mechanism.
+
+19.10. The Orphaned Systems
+
+MISTAKE: You build elaborate tracking systems and never use them.
+The spreadsheet has 500 rows but the prose references 10 loops.
+
+FIX: The system serves the story, not vice versa.
+- Only track what you'll reference
+- Equivalence classes should appear in prose as montages
+- Loop counts should feel present ("he'd tried this hundreds of times")
+- If a system element never affects the narrative, delete it
+
+The million loops should feel real to the reader. The tracking system is how you make that happen. If the tracking doesn't translate to text, it's not working.
