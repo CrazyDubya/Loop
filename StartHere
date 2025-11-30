@@ -167,58 +167,292 @@ Story side:
 
 5.2. Parametric families of loops
 
-Define families of similar loops by a small parameter set:
-	•	StrategyType: brute force, stealth, persuasion, withdrawal
-	•	RiskLevel: low/medium/high
-	•	KeyChoiceBits: binary flags for the few truly important decisions
+Define families of similar loops by a small parameter set. Instead of describing each loop individually, describe a family once and let parameter values generate the variations.
 
-Now many loops become just different parameter combinations, not hand-crafted stories.
+Core parameters:
 
-We can say:
-	•	For all loops with (StrategyType = stealth, RiskLevel = medium) in a certain region of the graph, outcome is same: “caught by guard B, thrown out,” no new knowledge.
+StrategyType: The broad approach to the day.
+	•	brute_force: Direct confrontation, overwhelming resources
+	•	stealth: Avoid detection, work in shadows
+	•	persuasion: Talk through obstacles, manipulate socially
+	•	withdrawal: Avoid engagement, observe from distance
+	•	chaos: Deliberately unpredictable, test edge cases
 
-So we store the family once and know it covers hundreds of loops.
+RiskLevel: How much the character gambles.
+	•	low: Conservative plays, prioritize survival
+	•	medium: Calculated risks for moderate gains
+	•	high: All-in attempts, accept high failure rates
+	•	suicidal: Information-gathering through certain death
+
+KeyChoiceBits: Binary flags for the critical decision points.
+	•	Example: A day with 5 critical choices becomes a 5-bit vector
+	•	A = "warn the sister" (0/1)
+	•	B = "take the gun" (0/1)
+	•	C = "trust the stranger" (0/1)
+	•	D = "use the codeword" (0/1)
+	•	E = "confront the villain directly" (0/1)
+	•	So "A1 B0 C1 D1 E0" is one decision profile
+
+TimingVariant: When key actions are attempted.
+	•	early: Rush to critical nodes before expected
+	•	standard: Follow natural timing
+	•	delayed: Wait, gather more info before acting
+	•	reactive: Only act in response to events
+
+How families work:
+
+A ParametricFamily is defined as:
+
+ParametricFamily {
+  family_id
+  strategy_type
+  risk_level
+  key_choice_pattern    # regex or wildcard on KeyChoiceBits (e.g., "A1 B* C1 D* E0")
+  timing_variant
+  applicable_region     # which part of the day graph this applies to
+  outcome_distribution  # what outcomes this family produces, with probabilities
+  knowledge_distribution # what can be learned
+  sample_loops[]        # IDs of representative loops
+  estimated_count       # how many loops this family covers
+}
+
+Example family definition:
+
+Family: "Stealth Rescue Attempts"
+{
+  family_id: FAM_017
+  strategy_type: stealth
+  risk_level: medium
+  key_choice_pattern: "A1 B1 C* D* E0"  # always warn sister, always take gun, never confront directly
+  timing_variant: early
+  applicable_region: afternoon_sector (t8 to t14)
+  outcome_distribution: {
+    "sister_saved_clean": 5%
+    "sister_saved_messy": 15%
+    "caught_by_guard": 60%
+    "sister_dies_anyway": 20%
+  }
+  knowledge_distribution: {
+    "guard_patrol_pattern": 40%
+    "sister_location_confirmed": 80%
+    "nothing_new": 30%
+  }
+  sample_loops: [L_0142, L_0891, L_3204]
+  estimated_count: 847
+}
+
+This single family definition replaces 847 individual loop records.
+
+The parameter space trap:
+
+Warning: Parameters multiply. With 5 strategy types × 4 risk levels × 32 key choice combinations × 4 timing variants = 2,560 potential families.
+
+Avoid this by:
+	1.	Constraining combinations: Not all parameter combos make sense. "Stealth + suicidal risk" is contradictory. Define valid_combinations.
+	2.	Hierarchical parameters: Some parameters only matter given others. Risk level might only differentiate within brute_force; for stealth, it's always medium-low.
+	3.	Lazy family creation: Don't pre-define all families. Create them as the story demands. If you never write a "persuasion + high risk + early timing" loop, that family doesn't need to exist.
+
+Using families in practice:
+
+When you want to write "he tried stealth approaches hundreds of times":
+	1.	Look up relevant families (all families where strategy_type = stealth)
+	2.	Sum their estimated_counts
+	3.	Pick 1-3 sample_loops to dramatize
+	4.	The rest become montage with accurate statistics
+
+When you need a new anchor loop:
+	1.	Check if an existing family covers this parameter combination
+	2.	If yes, add this loop to that family's sample_loops
+	3.	If no, create a new family or record it as a one-off outlier
+
+Families and equivalence classes:
+
+These are orthogonal concepts:
+	•	Equivalence classes group by outcome (what happened)
+	•	Parametric families group by approach (how they tried)
+
+A single family might produce loops in multiple equivalence classes (stealth attempts that succeed vs. fail). A single equivalence class might contain loops from multiple families (different approaches that all end in the same explosion).
 
 5.3. Early termination / cut-short loops
 
-Many loops are abortive:
-	•	Character gets killed early
-	•	They rage-quit the day (“Nope, I’m done”)
-	•	Time runs out before they reach key nodes
+Many loops are abortive—they end before reaching meaningful decision points. These are narratively cheap but psychologically expensive.
 
-These are cheap:
-	•	We don’t explore the whole graph
-	•	We tag them as:
-	•	short_loop
-	•	death_at_t4
-	•	no_new_info
+Categories of early termination:
 
-These naturally cluster into a few classes:
+1. Death loops
+Character gets killed before reaching key nodes.
+	•	Random death: wrong place, wrong time (car accident, stray bullet)
+	•	Predictable death: walked into known danger without preparation
+	•	Experimental death: deliberately testing "what kills me here?"
 
-“Hundreds of times, he died before noon. Those don’t even count.”
+2. Rage-quit loops
+Character consciously abandons the day.
+	•	Emotional overflow: "I can't watch this again"
+	•	Strategic reset: "This is already unsalvageable, start over"
+	•	Information harvest: "Got what I needed, no point continuing"
 
-Mathematically: early-absorbing states that require minimal bookkeeping.
+3. Stall-out loops
+Character survives but fails to progress.
+	•	Paralysis: Couldn't decide, time ran out
+	•	Wrong path: Spent the day on irrelevant activities
+	•	Blocked: Needed knowledge/resource they didn't have
 
-5.4. Intentional re-run loops
+Data structure for short loops:
 
-Sometimes the character deliberately repeats a prior loop almost exactly to:
-	•	Verify a hypothesis (“Does this always happen?”)
-	•	Re-experience something (“I need to see her again”)
-	•	Set up conditions for later
+ShortLoop {
+  loop_id
+  termination_type    # death | rage_quit | stall_out
+  termination_time    # t4, t7, etc.
+  termination_cause   # short description or cause_id
+  knowledge_gained    # usually null or minimal
+  psychological_cost  # low/medium/high
+  count_in_class      # how many similar loops
+}
 
-Mechanically:
-	•	Store them as:
-	•	DerivedFromLoopID
-	•	DeviationSignature (how different is it?)
+Early-absorbing states:
 
-If the difference is tiny, we treat it like:
-	•	DeviationSignature = small → auto-merge into the same equivalence class unless that tiny change matters to outcome/knowledge.
+An absorbing state is a node in the day graph from which no further progress is possible. Early-absorbing states are ones that can be reached quickly:
+
+	•	"Death at the bank at 10:05" — loops that reach this state share it
+	•	"Arrested by police at noon" — another absorbing state
+	•	"Emotional breakdown, can't continue" — soft absorbing state
+
+Map these absorbing states explicitly:
+
+AbsorbingState {
+  state_id
+  time_slot           # when this can occur
+  trigger_conditions  # what leads here
+  is_death            # boolean
+  knowledge_possible  # can anything be learned in this death?
+  frequency           # how often loops hit this state
+}
+
+In a well-mapped day graph, you might have 20-50 absorbing states. Each one is a bucket that catches thousands of short loops.
+
+Why short loops matter:
+
+They seem like wasted space, but they serve functions:
+
+1. Calibration: Early deaths teach the character where danger lives
+2. Psychological weight: Even "cheap" deaths accumulate trauma
+3. Completeness: They fill out the "million loops" count legitimately
+4. Narrative contrast: "Those first hundred deaths taught him nothing except where not to stand"
+
+Tracking aggregates:
+
+Instead of tracking individual short loops, track aggregates:
+
+ShortLoopAggregate {
+  absorbing_state_id
+  total_count
+  epoch_distribution   # {naive: 400, ruthless: 50, synthesis: 5}
+  sample_loop_ids[]    # 1-3 examples if needed
+  psychological_toll   # cumulative effect on character
+}
 
 Narratively:
 
-“He reran day 47 almost verbatim, changing only a single sentence in their argument.”
+"The corner of Fifth and Main killed him four hundred and twelve times. He stopped counting after the first fifty. Later, he wouldn't walk within two blocks of it, even when the path was optimal."
 
-Behind the scenes, that’s one extra bit flipped in the decision vector.
+This captures both the mechanical reality (412 loops absorbed by one state) and the psychological residue.
+
+Should short loops "count"?
+
+Philosophical question: If the character died at t2 without learning anything, did they experience a "loop"?
+
+Option A: Yes, count everything. A loop is a loop. The million includes all attempts.
+
+Option B: No, only "real" loops count. Short loops are pre-loops, noise.
+
+Option C: Weighted counting. Full loops count as 1.0, short loops count as 0.1-0.5 based on duration.
+
+Recommendation: Option A for bookkeeping, but acknowledge that the character might mentally categorize them differently. "A million loops—though half of those were over before lunch."
+
+5.4. Intentional re-run loops
+
+Sometimes the character deliberately repeats a prior loop almost exactly. This is psychologically distinct from forced repetition.
+
+Reasons for intentional repetition:
+
+1. Hypothesis testing
+"Does this always happen, or was it random?"
+The character runs the same sequence to check for consistency. This is scientific method applied to time loops.
+
+2. Emotional revisitation
+"I need to see her again."
+The character seeks comfort, closure, or connection by recreating a specific experience. These loops are about feeling, not learning.
+
+3. Staging / setup
+"If I do X in this loop, maybe next loop will be different."
+Testing whether actions in one loop affect subsequent loops (usually they don't, but the character might hope).
+
+4. Perfection attempts
+"I almost got it right. One more time, exactly the same, but better."
+Micro-optimization of a path that almost worked.
+
+5. Ritual / superstition
+"This is how I start now."
+The character develops routines that feel necessary even if they're not optimal.
+
+Deviation tracking:
+
+Store intentional re-runs with explicit deviation data:
+
+RerunLoop {
+  loop_id
+  source_loop_id       # which loop they're copying
+  rerun_intent         # hypothesis_test | emotional | staging | perfection | ritual
+  deviation_signature  # how different is it? (see below)
+  deviation_points[]   # where exactly did it diverge?
+  outcome_changed      # boolean: did the outcome differ?
+  knowledge_changed    # boolean: did they learn something new?
+}
+
+Computing deviation signature:
+
+Deviation is the "distance" between two loops in decision space.
+
+Method 1: Hamming distance on KeyChoiceBits
+If source loop was "A1 B0 C1 D1 E0" and rerun was "A1 B0 C1 D0 E0", deviation = 1 (one bit flipped).
+
+Method 2: Edit distance on decision trace
+If the full decision trace is a sequence, compute Levenshtein distance.
+
+Method 3: Semantic distance
+Weighted by importance: flipping a critical choice = high deviation, flipping a color choice = low deviation.
+
+Deviation thresholds:
+
+	•	deviation = 0: Perfect rerun. Same as source except for random variation.
+	•	deviation = 1-2: Minor variation. Probably same equivalence class.
+	•	deviation = 3-5: Moderate variation. Might be new family.
+	•	deviation > 5: Major variation. Basically a new loop.
+
+Auto-merge rules:
+
+if deviation <= 2 AND outcome_changed == false AND knowledge_changed == false:
+    merge into source loop's equivalence class
+    increment class count
+else:
+    create new loop record
+    link to source_loop_id for provenance
+
+Narrative uses:
+
+"He reran day 47 almost verbatim, changing only a single sentence in their argument. She still died. He ran it again, same day, same everything, different sentence. Still died. Fourteen times he tried that conversation before accepting: it wasn't about the words."
+
+Behind the scenes: 14 rerun loops, deviation = 1 each (one sentence changed), all same equivalence class (sister dies), linked to source loop 47.
+
+The emotional weight of intentional repetition:
+
+Forced repetition is tragedy. Intentional repetition is something else—sometimes grief, sometimes obsession, sometimes discipline.
+
+Track intent_type distribution across epochs:
+	•	Naive epoch: mostly hypothesis_test, some emotional
+	•	Obsession epoch: heavy emotional, perfection
+	•	Ruthless epoch: mostly staging, hypothesis_test
+	•	Synthesis epoch: ritual, acceptance-based emotional
 
 ⸻
 
@@ -255,21 +489,176 @@ Narratively, you can then talk about phases:
 
 Here’s a way to actually use all this without building a whole database engine.
 
-7.1. High-level structure
-	1.	Define your day graph:
-	•	List 20–60 key events and choices
-	•	Note which ones are:
-	•	Critical (change outcomes/knowledge)
-	•	Color (change mood/texture only)
-	2.	Define 4–7 epochs in the character’s looping life:
-	•	Naive / denial
-	•	Experimenting / mapping
-	•	Obsession / escalation
-	•	Ruthlessness / burnout
-	•	Synthesis / transcendence / whatever you choose later
-	3.	For each epoch, outline:
-	•	5–20 anchor loops you’ll actually write
-	•	What equivalence classes surround them (montages)
+7.1. High-level structure: A step-by-step workflow
+
+This section walks through the full process of setting up a loop story from scratch.
+
+PHASE 1: Build the day graph (do this first, do it thoroughly)
+
+Step 1.1: Establish the boundaries
+	•	When does the loop start? (Waking up? A specific moment?)
+	•	When does it reset? (Midnight? Death? A specific trigger?)
+	•	What's the total duration? (24 hours? 12 hours? Variable?)
+
+Step 1.2: List all possible events
+Brainstorm every significant thing that could happen during the loop day. Don't filter yet.
+	•	Character actions (where they can go, who they can talk to)
+	•	World events (things that happen regardless of character action)
+	•	NPC schedules (where is the sister at 10 AM? at 3 PM?)
+	•	Environmental factors (weather, crowds, traffic patterns)
+
+Aim for 50-100 raw events. You'll filter down later.
+
+Step 1.3: Classify events by type
+For each event, mark:
+	•	Critical: Changes outcome or enables new knowledge
+	•	Gating: Must happen before other events can occur
+	•	Color: Affects mood/texture but not outcomes
+	•	Background: Happens automatically, character can ignore
+
+Step 1.4: Build the graph structure
+Connect events with edges representing causality and timing:
+	•	"Event A at t3" enables "Event B at t5"
+	•	"Event C at t7" prevents "Event D at t8"
+	•	"Events E and F can't both happen" (mutually exclusive)
+
+Identify:
+	•	Entry points: Events available from loop start
+	•	Chokepoints: Events many paths must pass through
+	•	Absorbing states: Events that end the loop (deaths, victories, timeouts)
+
+Step 1.5: Validate the graph
+Check that:
+	•	No orphan events (unreachable from start)
+	•	At least one "good" ending is theoretically achievable
+	•	Early absorbing states exist (the naive character will hit these)
+	•	The graph supports multiple strategic approaches
+
+PHASE 2: Define epochs
+
+Step 2.1: Sketch the psychological arc
+Before naming epochs, answer:
+	•	What's the character's starting mental state?
+	•	What's the worst psychological place they could reach?
+	•	What does "success" look like emotionally, not just plot-wise?
+	•	How many loops before major psychological shifts?
+
+Step 2.2: Name and define 4-7 epochs
+Standard template (adapt to your story):
+
+Epoch 1: Naive / Denial (loops 1-50)
+Character doesn't understand what's happening or refuses to believe it.
+	•	Dominant strategy: reactive, confused
+	•	Dominant outcomes: early deaths, random exploration
+	•	Knowledge gained: basic geography of the day
+	•	Emotional state: fear, confusion, denial
+
+Epoch 2: Mapping / Experimentation (loops 50-500)
+Character accepts the loop and begins systematic exploration.
+	•	Dominant strategy: hypothesis testing, deliberate variation
+	•	Dominant outcomes: mixed, more complete loops
+	•	Knowledge gained: NPC schedules, causality chains, initial secrets
+	•	Emotional state: scientific detachment, occasional hope
+
+Epoch 3: Obsession / Escalation (loops 500-5000)
+Character becomes consumed by a specific goal or relationship.
+	•	Dominant strategy: narrow focus, repeated attempts at one objective
+	•	Dominant outcomes: frustrating near-misses, occasional breakthroughs
+	•	Knowledge gained: deep expertise in one path, blind spots elsewhere
+	•	Emotional state: obsessive, increasingly unhealthy attachment
+
+Epoch 4: Ruthlessness / Burnout (loops 5000-50000)
+Character loses empathy, treats the world as a puzzle not a reality.
+	•	Dominant strategy: purely optimal, no moral constraints
+	•	Dominant outcomes: efficient but hollow successes
+	•	Knowledge gained: comprehensive, but fragmented emotionally
+	•	Emotional state: numb, dissociated, occasional horror at self
+
+Epoch 5: Synthesis / Transcendence (loops 50000+)
+Character integrates all learning, finds new way of being.
+	•	Dominant strategy: acceptance-based, wisdom rather than optimization
+	•	Dominant outcomes: "true" ending or peaceful acceptance
+	•	Knowledge gained: self-knowledge, meaning
+	•	Emotional state: peace, resolution, earned hope
+
+Step 2.3: Set loop count estimates
+For each epoch, estimate:
+	•	Total loops in epoch
+	•	Anchor loops you'll write in detail (5-20 per epoch)
+	•	Equivalence classes that cover the rest
+	•	Sub-loop intensity (light/moderate/heavy)
+
+PHASE 3: Design anchor loops
+
+Step 3.1: Identify mandatory anchors
+Some loops must exist:
+	•	First loop (loop 1): The reader's introduction
+	•	First death: Character confronts mortality
+	•	First breakthrough: Something works for the first time
+	•	Epoch transitions: The moments that shift strategy/psychology
+	•	Worst moment: The psychological nadir
+	•	Final loop: However you end it
+
+Step 3.2: Design strategic anchors per epoch
+For each epoch, select loops that demonstrate:
+	•	The dominant strategy in action
+	•	A key failure (why this strategy alone isn't enough)
+	•	A key success (what the character gains)
+	•	The emotional texture of the epoch
+
+Step 3.3: Fill in connection loops
+These anchor loops explain how the character got from point A to point B:
+	•	How did they learn that critical piece of information?
+	•	What made them shift from strategy X to strategy Y?
+	•	What broke their attachment to character Z?
+
+Step 3.4: Assign anchors to equivalence classes
+For each anchor, ask:
+	•	What class does this represent?
+	•	How many similar loops does this class contain?
+	•	Is this anchor typical or exceptional for its class?
+
+PHASE 4: Build equivalence classes and families
+
+Step 4.1: Work backward from anchors
+For each anchor loop, define the class it represents:
+	•	Outcome hash: What happens in these loops?
+	•	Knowledge delta: What's learned?
+	•	Loop count: How many times did the character do this?
+
+Step 4.2: Fill gaps with parametric families
+For epochs where you haven't specified many anchors, define families:
+	•	"All stealth attempts in the naive epoch"
+	•	"All direct confrontations during ruthlessness"
+
+Step 4.3: Sanity check the math
+Add up:
+	•	Anchor loops
+	•	Equivalence class counts
+	•	Family estimated counts
+	•	Short loop aggregates
+
+Does it add up to roughly a million? If not, adjust family sizes or add absorbing state counts.
+
+PHASE 5: Iterative refinement
+
+Step 5.1: Write anchors, discover problems
+As you write anchor loops, you'll find:
+	•	Graph gaps: Events that should exist but don't
+	•	Continuity errors: Knowledge states that don't line up
+	•	Missing transitions: How did they get from loop 500 to loop 5000?
+
+Step 5.2: Update the graph
+Add missing events, refine causality, adjust epoch boundaries.
+
+Step 5.3: Update classes and families
+As the story evolves, class counts will shift. That's fine—the counts are estimates anyway.
+
+Step 5.4: Know when to stop
+The system can expand infinitely. Set boundaries:
+	•	Maximum anchor loops: 100-300 for a novel, 50-100 for a novella
+	•	Maximum equivalence classes: A few thousand
+	•	Maximum detail level: Don't over-engineer what readers won't see
 
 7.2. Spreadsheet (or index cards) model
 
@@ -332,4 +721,453 @@ From your POV, you’re really only actively juggling:
 	•	A few dozen sub-loop macros
 	•	A couple thousand equivalence classes that exist mostly as counts and tags
 
-scaffold as a multi phasic, multi domain, multi specialist task project, use Phase1-backend-tasks.md etc tonstay organized nad checklists.md too(it will be entirelt agentic hutnright agent and context at right time)
+---
+
+9. The Ontology of Loop Identity
+
+Before building anything, we must wrestle with a deceptively simple question: what makes a loop "the same" loop?
+
+9.1. The identity problem
+
+Consider two loops:
+	•	Loop A: Character wakes, goes left, learns the codeword, dies at 6 PM.
+	•	Loop B: Character wakes, goes right, learns the codeword (from different source), dies at 6 PM.
+
+Same outcome_hash. Same knowledge_id. By our equivalence relation, these collapse into one class. But are they the same experience? The character walked different streets, talked to different people, felt different textures of the day.
+
+This matters because:
+	•	Narrative weight: Some "equivalent" loops carry vastly different emotional freight.
+	•	Character memory: Does the character remember them as one blur or distinct days?
+	•	Reader experience: Collapsing too aggressively feels like cheating; too little and you drown in detail.
+
+9.2. Three theories of loop identity
+
+Theory 1: Outcome-only identity (the pragmatic view)
+Loops are identical iff they produce the same world-state delta and knowledge delta. Internal experience is irrelevant to the machinery. This is what our equivalence classes implement.
+
+Pros: Clean, tractable, scales to millions.
+Cons: Erases the phenomenology. A loop where you watch your sister die slowly is "the same" as one where she dies instantly, if the outcome matches.
+
+Theory 2: Path-sensitive identity (the experiential view)
+Loops are identical only if the decision trace is identical within some tolerance. Same choices, same sequence, same encounters.
+
+Pros: Preserves experiential texture.
+Cons: Explodes the class count. Almost no two loops are identical.
+
+Theory 3: Hybrid identity (the narrative view)
+Loops belong to the same equivalence class for bookkeeping, but we track a "texture signature" that captures experiential variation within the class.
+
+Implementation:
+	•	EquivalenceClass holds outcome_hash + knowledge_id (coarse grain)
+	•	Each loop also stores texture_bits: a compressed encoding of experiential qualities
+		•	Violence level (0-3)
+		•	Emotional peak type (grief/rage/hope/numbness)
+		•	Pacing (rushed/methodical/aimless)
+		•	Social density (alone/few encounters/crowded)
+
+This lets you say: "Within the 'explosion at 18:03' class, 200 loops were violent-grief-rushed, 100 were violent-numbness-methodical, 47 were nonviolent-hope-aimless..."
+
+When you pick a representative loop to dramatize, you pick based on texture, not just class membership.
+
+9.3. Subjective time dilation
+
+A loop with heavy sub-loop activity might take the character subjectively weeks to traverse, while a clean run feels like a single day. How do we account for this?
+
+Add to the loop object:
+	•	subjective_duration: estimated experienced time (in "day-equivalents")
+	•	sub_loop_load: count of significant sub-loop iterations
+
+This matters for:
+	•	Character psychology: 1000 loops with light sub-looping is different from 100 loops with brutal sub-loop grinding
+	•	Narrative pacing: A "short" epoch in loop-count might be "long" in subjective time
+	•	Burnout modeling: Psychological damage scales with subjective_duration, not loop_count
+
+9.4. The memory question
+
+What does the character actually remember?
+
+Option A: Perfect recall
+Every loop is remembered with crystal clarity. This strains plausibility past a few hundred loops but enables certain plot devices (recalling exact dialogue from loop 7,432).
+
+Option B: Compressed memory
+The character remembers:
+	•	All anchor loops vividly
+	•	Equivalence classes as "gists" (I tried that hundreds of times, it never worked)
+	•	Recent loops in detail, older loops as summaries
+	•	Emotionally intense loops regardless of age
+
+This mirrors how our tracking system works—the character's memory and our data structures are isomorphic.
+
+Option C: Degraded memory
+Memory is lossy. Old loops blur together. The character might misremember which loop taught them what. This introduces unreliable-narrator potential and psychological realism, but complicates tracking.
+
+Recommendation: Option B as default, with Option C available for specific narrative needs (e.g., a "false memory" arc where the character acts on something they think they learned but didn't).
+
+9.5. Knowledge as a living thing
+
+The document assumes knowledge accumulates monotonically. But knowledge is stranger than that:
+
+Knowledge can be:
+	•	Suppressed: Character knows the codeword but can't bring themselves to use it (trauma-locked)
+	•	Contextual: Information only makes sense after other information is acquired
+	•	Decaying: Procedural knowledge (how to pick the lock) might fade if not practiced
+	•	Contradicted: Later loops might reveal earlier "knowledge" was wrong
+
+A richer knowledge model:
+
+KnowledgeState {
+  facts[]           # things known to be true
+  skills[]          # procedural knowledge (with freshness score)
+  beliefs[]         # things believed but not verified
+  traumas[]         # knowledge that's locked/suppressed
+  contradictions[]  # facts that conflict with earlier beliefs
+}
+
+The knowledge_id in our loop object becomes a hash of this richer structure, not just a flat list of learned facts.
+
+---
+
+10. The Ethics and Psychology of Eternal Return
+
+A million loops isn't just a logistical challenge. It's a psychological and moral crucible.
+
+10.1. The phenomenology of loop fatigue
+
+Early loops: Everything matters. Every death is tragedy. Every failure is painful.
+
+Middle loops: Numbness sets in. NPCs become furniture. The character starts "speedrunning" without emotional engagement.
+
+Late loops: Either transcendence (finding meaning despite repetition) or complete dissociation (the character is no longer recognizably human in their responses).
+
+Track this with a fatigue_state variable per epoch:
+	•	raw (loops 1-50): full emotional engagement
+	•	calloused (loops 50-500): selective engagement, growing detachment
+	•	numb (loops 500-5000): mechanical execution, rare emotional spikes
+	•	dissociated (loops 5000+): character questions reality, identity, purpose
+	•	[optional] transcendent: character finds new framework for meaning
+
+10.2. The moral question
+
+If actions reset, do they matter?
+
+Framework 1: Consequentialism collapses
+No consequences persist, so no action is "wrong." The character can do anything. This leads to:
+	•	Experimental cruelty ("What happens if I...")
+	•	Complete indifference to NPC suffering
+	•	A kind of solipsistic godhood
+
+Framework 2: Virtue ethics persists
+The character still experiences their own choices. Killing someone, even if it resets, still means experiencing being a killer. This leads to:
+	•	Self-imposed constraints
+	•	Horror at one's own past actions
+	•	Attempts to "be good" despite meaninglessness
+
+Framework 3: Kantian duty
+The character acts as if their choices could become universal law, even knowing they won't. This is philosophically strained but psychologically useful—it gives the character a reason to care.
+
+Most interesting: Characters move through these frameworks across epochs. The "ruthless" epoch might be Framework 1; the "synthesis" epoch might be Framework 2 or 3.
+
+10.3. NPC ontology
+
+After 10,000 loops, how does the character view the people around them?
+
+Stages:
+	1.	Full personhood: They're real people, every loop.
+	2.	Recurring characters: They're "the same person" across loops, just reset.
+	3.	Behavioral patterns: They're predictable systems, not people.
+	4.	Set dressing: They're not even systems, just background.
+	5.	[Recovery] Re-personification: Character forces themselves to see NPCs as people again.
+
+This progression can be tracked and can influence which loops become anchors (a loop where the character suddenly sees an NPC as human again is emotionally significant).
+
+10.4. The identity of the looper
+
+After a million iterations, is the character still "themselves"?
+
+Consider:
+	•	Memory accumulation: They have experiences no human should have
+	•	Skill accumulation: They've mastered everything practicable in the loop
+	•	Personality drift: Early-loop-self and late-loop-self might be unrecognizable
+	•	Temporal isolation: No one else shares their experience
+
+You might track:
+	•	identity_drift: a score (0.0 to 1.0) of how far the character has moved from their loop-1 self
+	•	This affects narrative voice, decision-making patterns, and what counts as "in character"
+
+---
+
+11. Worked Example: "The Last Day of Marcus Chen"
+
+Here's a complete mini-example demonstrating the entire system. This is a condensed version—a real story would have more detail, but this shows all the moving parts.
+
+11.1. Premise
+
+Marcus Chen is a data analyst in a mid-sized city. On October 15th, his sister Elena is killed in an explosion at the Riverside Mall at 6:03 PM. Marcus wakes up the next morning to discover it's October 15th again. He will repeat this day approximately one million times.
+
+11.2. The day graph (simplified)
+
+TIME SLOTS:
+t0: 6:00 AM – Wake up
+t1: 7:00 AM – Morning routine window
+t2: 8:00 AM – Commute window
+t3: 9:00 AM – Work begins
+t4: 12:00 PM – Lunch window
+t5: 2:00 PM – Afternoon window
+t6: 4:00 PM – Elena goes to mall
+t7: 5:00 PM – Critical window before explosion
+t8: 6:03 PM – Explosion
+t9: 6:30 PM – Aftermath / loop reset at midnight
+
+KEY EVENTS (30 total, showing critical ones):
+
+CRITICAL EVENTS:
+E01: [t1] Intercept Elena at her apartment - can warn her
+E02: [t2] Notice suspicious van near downtown - clue to bombers
+E03: [t3] Access office database - can research suspects
+E04: [t4] Meet informant at Café Luna - learns partial truth
+E05: [t5] Confront security chief Reeves - can learn bomb location
+E06: [t6] Reach Elena at mall entrance - last chance to physically stop her
+E07: [t7] Disable bomb in food court - requires prior knowledge + tools
+E08: [t8] Explosion - absorbing state (unless bomb disabled)
+E09: [t7] Evacuate mall - alternate solution, partial success
+E10: [t5] Obtain bomb disposal tools from contact - gating event for E07
+
+GATING RELATIONSHIPS:
+- E04 requires: knowing about the informant (learned in prior loops)
+- E05 requires: evidence from E03 OR knowledge from E04
+- E07 requires: E10 (tools) AND knowing bomb location (from E05)
+- E09 requires: fire alarm access OR security credentials
+
+COLOR EVENTS (examples):
+E20: [t1] Coffee with neighbor - mood boost, no knowledge
+E21: [t4] Argument with boss - mood damage, no knowledge
+E22: [t6] See Elena smile at a stranger - emotional weight
+
+ABSORBING STATES:
+A01: Death by explosion at mall (t8)
+A02: Death by van collision (t2) - if investigating van carelessly
+A03: Death by Reeves' guards (t5) - if confrontation goes wrong
+A04: Arrested by police (various) - if actions too suspicious
+A05: Elena survives, bomb destroyed (t8) - "good" ending
+A06: Elena survives, bomb not destroyed, bombers escape (t8) - partial success
+A07: Mall evacuated, Elena survives, bomb explodes empty (t8) - alternate success
+
+11.3. Epochs defined
+
+EPOCH 1: DENIAL (Loops 1-30)
+Marcus doesn't understand what's happening.
+- Loops 1-5: Thinks it's déjà vu, ignores signs
+- Loops 6-15: Realizes it's repeating, panics
+- Loops 15-30: Tries basic interventions (calling Elena, staying home)
+Dominant outcome: Elena dies. Marcus dies sometimes too.
+Knowledge gained: The loop is real. Direct intervention fails.
+Anchor loops: 5-7 (first realization, first attempt to save her, first death)
+
+EPOCH 2: MAPPING (Loops 31-400)
+Marcus becomes systematic.
+- Loops 31-100: Maps Elena's day minute by minute
+- Loops 100-200: Maps other NPCs, identifies suspicious patterns
+- Loops 200-400: Discovers informant, discovers Reeves
+Dominant outcome: Elena dies, but Marcus learns something each time.
+Knowledge gained: The van, the informant, Reeves' involvement, bomb location
+Anchor loops: 15-20 (key discoveries, first contact with informant, first Reeves confrontation)
+
+EPOCH 3: OBSESSION (Loops 401-8,000)
+Marcus focuses entirely on saving Elena, neglecting other clues.
+- Loops 401-2000: Tries every permutation of warning Elena
+- Loops 2000-5000: Tries physical solutions (grab her, cause distractions)
+- Loops 5000-8000: Enters sub-loop hell around the mall entrance
+Dominant outcome: Elena dies. Occasional near-misses.
+Knowledge gained: Elena's psychology, relationship dynamics, Marcus' own limits
+Anchor loops: 20-30 (heartbreaking near-misses, the worst failure, the first time he gives up)
+Sub-loop intensive: The "mall entrance" sub-loop runs 500+ iterations in some loops
+
+EPOCH 4: RUTHLESSNESS (Loops 8,001-200,000)
+Marcus stops caring about anything except the goal.
+- Loops 8,001-50,000: Blackmail, threats, manipulation to get information
+- Loops 50,000-150,000: Experiments with letting people die, testing causality
+- Loops 150,000-200,000: Achieves technical competence to disarm bomb
+Dominant outcome: Mixed. Some successes (bomb disabled), but hollow.
+Knowledge gained: Full technical knowledge, moral emptiness
+Anchor loops: 25-35 (first ruthless act, first "success" that feels like failure, the atrocity loop)
+
+EPOCH 5: SYNTHESIS (Loops 200,001-1,000,000)
+Marcus finds a different way.
+- Loops 200,001-500,000: Processes what he's become
+- Loops 500,000-800,000: Re-learns to see people as real
+- Loops 800,000-999,999: Finds meaning beyond the outcome
+- Loop 1,000,000: The final loop (however you choose to end it)
+Dominant outcome: Elena sometimes survives, sometimes doesn't. Marcus finds peace.
+Knowledge gained: Self-knowledge, acceptance, possibly transcendence
+Anchor loops: 30-40 (the return to humanity, the conversation that changes everything, the end)
+
+11.4. Sample anchor loops
+
+LOOP 1 (Epoch 1 - The beginning)
+{
+  id: L_0001
+  parent_id: null
+  epoch: denial
+  key_choices: "A0 B0 C0 D0 E0" (no critical choices made)
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_id: K_000 (baseline knowledge)
+  mood_id: M_001 (shock)
+  tags: ["first_loop", "anchor", "epoch_start"]
+}
+Narrative: Marcus goes through his day normally. Elena dies. He goes to bed devastated. Wakes up on October 15th again.
+
+LOOP 47 (Epoch 1 - First attempt)
+{
+  id: L_0047
+  parent_id: L_0046
+  epoch: denial
+  key_choices: "A1 B0 C0 D0 E0" (warned Elena)
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_id: K_003 (knows warnings don't work)
+  mood_id: M_007 (despair)
+  tags: ["first_warning_attempt", "anchor"]
+}
+Narrative: Marcus intercepts Elena at her apartment, begs her not to go to the mall. She goes anyway. Dies anyway. He learns: knowledge alone isn't enough.
+
+LOOP 347 (Epoch 2 - Key discovery)
+{
+  id: L_0347
+  parent_id: L_0340
+  epoch: mapping
+  key_choices: "A0 B1 C1 D0 E0" (investigated van, accessed database)
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_id: K_047 (knows van is connected to bombers)
+  mood_id: M_012 (determined)
+  tags: ["van_discovery", "anchor", "breakthrough"]
+}
+Narrative: Marcus follows the suspicious van. Nearly gets killed. But he sees them deliver something to the mall. Cross-references with database: one of them is a contractor for Reeves' company.
+
+LOOP 5,847 (Epoch 3 - Sub-loop hell)
+{
+  id: L_5847
+  parent_id: L_5800
+  epoch: obsession
+  key_choices: "A1 B0 C0 D0 E1" (warned Elena, tried evacuation)
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_id: K_089
+  mood_id: M_034 (numb)
+  tags: ["sub_loop_intensive", "anchor"]
+  subjective_duration: 47.0 (days)
+  sub_loop_load: 892
+}
+Sub-loop macro attached: MACRO_047
+{
+  macro_id: MACRO_047
+  parent_loop: L_5847
+  time_window: t6-t7 (Elena at mall to explosion)
+  attempts_count: 892
+  best_outcome: "Elena convinced to leave, killed by secondary device outside"
+  knowledge_gained: "Secondary device exists"
+  emotional_effect: "devastating—close isn't enough"
+}
+Narrative: Marcus spends what feels like a month trapped in the 90 minutes between Elena arriving at the mall and the explosion. 892 attempts. Every combination of words, every angle of approach. The closest he gets: she agrees to leave with him—and dies to a secondary bomb in the parking structure.
+
+LOOP 52,000 (Epoch 4 - The atrocity)
+{
+  id: L_52000
+  parent_id: L_51999
+  epoch: ruthless
+  key_choices: "A0 B1 C1 D1 E0" (let Elena go to mall, extracted info by torture)
+  outcome_hash: "elena_dies_explosion_reeves_dead_marcus_survives"
+  knowledge_id: K_150 (full bomb specs)
+  mood_id: M_078 (self-loathing)
+  tags: ["torture_loop", "anchor", "moral_nadir"]
+}
+Narrative: Marcus doesn't try to save Elena this time. Instead, he captures Reeves, tortures him for bomb specifications. Gets the information. Elena dies. Loop ends. Marcus has what he needs—and has become someone unrecognizable.
+
+LOOP 800,000 (Epoch 5 - The return)
+{
+  id: L_800000
+  parent_id: L_799000
+  epoch: synthesis
+  key_choices: "A1 B0 C0 D0 E0" (just talked to Elena)
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_id: K_200
+  mood_id: M_150 (bittersweet peace)
+  tags: ["return_to_humanity", "anchor"]
+}
+Narrative: For the first time in 600,000 loops, Marcus sits with Elena for coffee. He doesn't try to save her. He just listens. She talks about her hopes for the future. He knows she'll die at 6:03. He's present with her anyway. Something breaks open in him.
+
+11.5. Equivalence classes (sample)
+
+CLASS C_001: "Standard explosion death, no new knowledge"
+{
+  class_id: C_001
+  outcome_hash: "elena_dies_explosion_marcus_survives"
+  knowledge_delta: null
+  mood_delta: -1 (slight despair accumulation)
+  count: 412,000
+  sample_loops: [L_0001, L_0015, L_0089]
+}
+Narrative use: "Four hundred thousand loops ended the same way. He stopped feeling the explosion after the first ten thousand."
+
+CLASS C_047: "Elena warned, dies anyway"
+{
+  class_id: C_047
+  outcome_hash: "elena_dies_explosion_after_warning"
+  knowledge_delta: "warnings_ineffective"
+  mood_delta: -3
+  count: 23,000
+  sample_loops: [L_0047, L_0052, L_0200]
+}
+Narrative use: "Twenty-three thousand times he warned her. Twenty-three thousand times she smiled, said she'd be careful, and walked into the food court anyway."
+
+CLASS C_089: "Elena evacuated, killed by secondary device"
+{
+  class_id: C_089
+  outcome_hash: "elena_dies_secondary_device"
+  knowledge_delta: "secondary_device_exists"
+  mood_delta: -5
+  count: 4,500
+  sample_loops: [L_5847, L_6000, L_7200]
+}
+Narrative use: "Four thousand five hundred times he got her out of the building. Four thousand five hundred times it didn't matter."
+
+CLASS C_150: "Bomb disabled, Elena survives, bombers escape"
+{
+  class_id: C_150
+  outcome_hash: "elena_survives_bombers_escape"
+  knowledge_delta: "can_save_elena"
+  mood_delta: +5, then -2 (hollow)
+  count: 8,000
+  sample_loops: [L_75000, L_100000, L_150000]
+}
+Narrative use: "He saved her eight thousand times. Eight thousand times she lived. Eight thousand times the loop reset anyway, and he realized: saving her wasn't the point."
+
+11.6. The math check
+
+Epoch 1 (Denial): 30 loops
+Epoch 2 (Mapping): 370 loops
+Epoch 3 (Obsession): 7,600 loops
+Epoch 4 (Ruthlessness): 192,000 loops
+Epoch 5 (Synthesis): 800,000 loops
+
+Total: 1,000,000 loops
+
+Anchor loops written in detail: ~150
+Equivalence classes defined: ~200
+Parametric families: ~50
+Short loop aggregates: ~30 absorbing states
+
+The million loops feel real because:
+1. The math adds up (classes + families + shorts = total)
+2. Each epoch has emotional texture through anchor loops
+3. The numbers aren't arbitrary—they reflect psychological reality
+4. The reader sees enough variation to trust the unseen
+
+11.7. What this example demonstrates
+
+- Day graph: 30 events, 7 absorbing states, clear gating relationships
+- Epochs: 5 stages with distinct psychology and strategy
+- Anchors: ~150 loops across all epochs, each serving narrative purpose
+- Classes: ~200 equivalence classes compressing the bulk
+- Sub-loops: Intensive periods tracked as macros
+- Psychological arc: From denial through ruthlessness to synthesis
+- The million: Literally accountable through the tracking system
+
+This is skeleton—prose would flesh out the anchor loops into scenes, montage prose would summarize the classes, and the reader would experience what feels like a million attempts while you've only written a few hundred thousand words.
