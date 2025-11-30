@@ -31,6 +31,7 @@ import {
   DEFAULT_STYLE,
   NarrativeTone,
   Perspective,
+  EquivalenceClass,
 } from '../index';
 
 /**
@@ -557,7 +558,7 @@ export function getStats(projectDir: string): CommandResult {
   const { config, graphData, loopsData } = loadResult.data as {
     config: ProjectConfig;
     graphData: DayGraphData;
-    loopsData: { loops: Loop[]; equivalenceClasses: any[] };
+    loopsData: { loops: Loop[]; equivalenceClasses: EquivalenceClass[] };
   };
 
   const loops = loopsData.loops;
@@ -604,7 +605,7 @@ export function exportProject(
   const { config, graphData, loopsData } = loadResult.data as {
     config: ProjectConfig;
     graphData: DayGraphData;
-    loopsData: { loops: Loop[]; equivalenceClasses: any[] };
+    loopsData: { loops: Loop[]; equivalenceClasses: EquivalenceClass[] };
   };
 
   if (format === 'json') {
