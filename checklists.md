@@ -7,8 +7,8 @@
 | 0. Foundations | **COMPLETE** | 14/14 | Orchestrator |
 | 1. Backend | **COMPLETE** | 20/20 | DataArchitect |
 | 2. Graph Engine | **COMPLETE** | 25/25 | GraphEngineer |
-| 3. Loop Operations | Ready | 0/28 | LoopOperator |
-| 4. Compression | Blocked by P3 | 0/26 | CompressionSpecialist |
+| 3. Loop Operations | **COMPLETE** | 28/28 | LoopOperator |
+| 4. Compression | Ready | 0/26 | CompressionSpecialist |
 | 5. Narrative | Blocked by P4 | 0/32 | NarrativeWeaver |
 
 ---
@@ -135,36 +135,36 @@
 
 ---
 
-## Phase 3: Loop Operations Checklist
+## Phase 3: Loop Operations Checklist ✓
 
 ### 3.1-3.6 Operators
-- [ ] cause(event) operator
-- [ ] avoid(event) operator
-- [ ] trigger(sequence) operator
-- [ ] relive(loop_ref) operator
-- [ ] slightly_change(loop_ref) operator
-- [ ] greatly_change(loop_ref) operator
+- [x] cause(event) operator (src/engine/operators.py:CauseOperator)
+- [x] avoid(event) operator (src/engine/operators.py:AvoidOperator)
+- [x] trigger(sequence) operator (src/engine/operators.py:TriggerOperator)
+- [x] relive(loop_ref) operator (src/engine/operators.py:ReliveOperator)
+- [x] slightly_change(loop_ref) operator (src/engine/operators.py:SlightlyChangeOperator)
+- [x] greatly_change(loop_ref) operator (src/engine/operators.py:GreatlyChangeOperator)
 
 ### 3.7 Decision Vectors
-- [ ] hamming_distance()
-- [ ] mutate()
-- [ ] crossover()
-- [ ] random_vector()
+- [x] hamming_distance() (src/models/loop.py)
+- [x] mutate() (src/models/loop.py:mutate_vector)
+- [x] crossover() (src/models/loop.py:crossover_vectors)
+- [x] random_vector() (src/models/loop.py)
 
 ### 3.8 Policies
-- [ ] Policy interface
-- [ ] Naive policy
-- [ ] Scientist policy
-- [ ] Desperate policy
-- [ ] Perfectionist policy
-- [ ] Obsessive policy
+- [x] Policy interface (src/engine/policies.py:Policy)
+- [x] Naive policy (src/engine/policies.py:NaivePolicy)
+- [x] Scientist policy (src/engine/policies.py:ScientistPolicy)
+- [x] Desperate policy (src/engine/policies.py:DesperatePolicy)
+- [x] Perfectionist policy (src/engine/policies.py:PerfectionistPolicy)
+- [x] Obsessive policy (src/engine/policies.py:ObsessivePolicy)
 
 ### 3.9 Generation Pipeline
-- [ ] generate_loop()
-- [ ] Batch generation
-- [ ] Generation statistics
+- [x] generate_loop() (src/engine/generator.py:LoopGenerator)
+- [x] Batch generation (batch_generate, explore_exhaustively)
+- [x] Generation statistics (GenerationStats)
 
-**Phase 3 Complete:** [ ]
+**Phase 3 Complete:** [x]
 
 ---
 
@@ -281,7 +281,7 @@
 
 - [x] **M1**: Can create and store a loop ✓
 - [x] **M2**: Can traverse a day graph ✓
-- [ ] **M3**: Can generate loops via operators
+- [x] **M3**: Can generate loops via operators ✓
 - [ ] **M4**: Can compress loops into classes
 - [ ] **M5**: Can generate narrative from classes
 - [ ] **M6**: End-to-end: policy → loops → compression → prose

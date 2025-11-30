@@ -231,6 +231,50 @@ def decode_decisions(vec: int, decision_map: dict[str, int]) -> List[str]:
     return sorted(result)
 
 
+def crossover_vectors(vec1: int, vec2: int, max_bits: int = 8) -> int:
+    """
+    Combine two decision vectors using single-point crossover.
+
+    Takes bits 0..crossover_point from vec1 and remaining from vec2.
+
+    Args:
+        vec1: First parent decision vector
+        vec2: Second parent decision vector
+        max_bits: Maximum bit position to consider
+
+    Returns:
+        Child vector combining both parents
+    """
+    import random
+    crossover_point = random.randint(0, max_bits - 1)
+
+    # Mask for lower bits (from vec1)
+    lower_mask = (1 << crossover_point) - 1
+    # Mask for upper bits (from vec2)
+    upper_mask = ((1 << max_bits) - 1) ^ lower_mask
+
+    return (vec1 & lower_mask) | (vec2 & upper_mask)
+
+
+def random_vector(max_bits: int = 8, density: float = 0.5) -> int:
+    """
+    Generate a random decision vector.
+
+    Args:
+        max_bits: Number of bits in the vector
+        density: Probability of each bit being 1 (default 0.5)
+
+    Returns:
+        Random decision vector as integer
+    """
+    import random
+    result = 0
+    for i in range(max_bits):
+        if random.random() < density:
+            result |= (1 << i)
+    return result
+
+
 # === Core Models ===
 
 class Loop(BaseModel):
