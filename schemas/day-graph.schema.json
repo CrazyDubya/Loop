@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/day-graph.schema.json",
+  "title": "DayGraph",
+  "description": "The graph structure representing all possible events and transitions in a single day/cycle",
+  "type": "object",
+  "required": ["id", "name", "nodes", "edges", "start_node_id", "time_bounds"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this graph"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this day structure"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Graph version for tracking changes"
+    },
+    "time_bounds": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "string",
+          "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+          "description": "Day start time (HH:MM)"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+          "description": "Day end time (HH:MM)"
+        }
+      }
+    },
+    "start_node_id": {
+      "type": "string",
+      "description": "Node where every loop begins"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GraphNode"
+      },
+      "minItems": 1
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GraphEdge"
+      }
+    }
+  },
+  "definitions": {
+    "GraphNode": {
+      "type": "object",
+      "required": ["id", "type", "time_slot", "label"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique node identifier"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["event", "decision", "location", "encounter", "discovery", "death", "reset"],
+          "description": "Category of this node"
+        },
+        "time_slot": {
+          "type": "string",
+          "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+          "description": "When this node occurs (HH:MM)"
+        },
+        "time_flexible": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can this event happen at variable times?"
+        },
+        "label": {
+          "type": "string",
+          "description": "Short description (e.g., 'Bank robbery begins')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Full narrative description"
+        },
+        "location": {
+          "type": "string",
+          "description": "Where this occurs"
+        },
+        "critical": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is this a major branch point or revelation?"
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["index", "label", "target_edge_id"],
+            "properties": {
+              "index": { "type": "integer", "minimum": 0 },
+              "label": { "type": "string" },
+              "target_edge_id": { "type": "string" },
+              "requires_knowledge": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "probability_weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "description": "Available choices at decision nodes"
+        },
+        "knowledge_available": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fact IDs that can be learned at this node"
+        },
+        "characters_present": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Character IDs at this node"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "GraphEdge": {
+      "type": "object",
+      "required": ["id", "source_id", "target_id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique edge identifier"
+        },
+        "source_id": {
+          "type": "string",
+          "description": "Origin node ID"
+        },
+        "target_id": {
+          "type": "string",
+          "description": "Destination node ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["default", "choice", "conditional", "timed", "random"],
+          "default": "default"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1,
+          "description": "Probability/priority weight"
+        },
+        "conditions": {
+          "type": "object",
+          "properties": {
+            "requires_knowledge": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "requires_item": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "time_window": {
+              "type": "object",
+              "properties": {
+                "after": { "type": "string" },
+                "before": { "type": "string" }
+              }
+            }
+          },
+          "description": "Conditions required to traverse this edge"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How long traversing this edge takes"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/knowledge-state.schema.json",
+  "title": "KnowledgeState",
+  "description": "What the protagonist knows at a point in time (persists across resets)",
+  "type": "object",
+  "required": ["id", "version", "facts", "created_at"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this knowledge state"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonically increasing version number"
+    },
+    "parent_id": {
+      "type": ["string", "null"],
+      "description": "Previous knowledge state this was derived from"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Real-world time this state was created"
+    },
+    "loop_id": {
+      "type": "string",
+      "description": "Which loop produced this knowledge state"
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "content", "certainty", "learned_in_loop"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique fact identifier"
+          },
+          "content": {
+            "type": "string",
+            "description": "The actual knowledge (e.g., 'The code is 4571')"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["location", "timing", "person", "object", "code", "relationship", "causation", "meta"],
+            "description": "Type of knowledge"
+          },
+          "certainty": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How certain the protagonist is (0=guess, 1=verified multiple times)"
+          },
+          "learned_in_loop": {
+            "type": "string",
+            "description": "Loop ID where this fact was first learned"
+          },
+          "verified_count": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many loops have confirmed this fact"
+          },
+          "contradicted_by": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Fact IDs that contradict this one"
+          },
+          "supersedes": {
+            "type": ["string", "null"],
+            "description": "Fact ID this knowledge replaces/updates"
+          }
+        }
+      },
+      "description": "All known facts"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "level"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "level": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "practice_loops": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "description": "Skills learned/improved through loops"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash for equivalence comparison"
+    }
+  },
+  "additionalProperties": false
+}

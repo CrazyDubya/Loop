@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/loop.schema.json",
+  "title": "Loop",
+  "description": "A single complete cycle from reset to reset (the core entity)",
+  "type": "object",
+  "required": [
+    "id",
+    "sequence_number",
+    "epoch_id",
+    "graph_id",
+    "status",
+    "started_at",
+    "knowledge_state_start_id",
+    "decisions",
+    "outcome"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this loop"
+    },
+    "sequence_number": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Which loop this is in absolute order (1 = first ever)"
+    },
+    "parent_id": {
+      "type": ["string", "null"],
+      "description": "Loop this was 'based on' or derived from (null for first loop)"
+    },
+    "epoch_id": {
+      "type": "string",
+      "description": "Which epoch this loop belongs to"
+    },
+    "graph_id": {
+      "type": "string",
+      "description": "Which day graph this loop traverses"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["in_progress", "completed", "aborted"],
+      "description": "Current state of the loop"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Real-world creation timestamp"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Story-time when loop began"
+    },
+    "ended_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Story-time when loop ended (null if in_progress)"
+    },
+    "duration_story_minutes": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "How long the loop lasted in story-time"
+    },
+    "knowledge_state_start_id": {
+      "type": "string",
+      "description": "Knowledge state at loop start"
+    },
+    "knowledge_state_end_id": {
+      "type": ["string", "null"],
+      "description": "Knowledge state at loop end (null if in_progress)"
+    },
+    "emotional_state_start": {
+      "type": "string",
+      "enum": ["hopeful", "curious", "frustrated", "desperate", "numb", "determined", "broken", "calm", "angry", "resigned"],
+      "description": "Protagonist's emotional state at start"
+    },
+    "emotional_state_end": {
+      "type": ["string", "null"],
+      "enum": ["hopeful", "curious", "frustrated", "desperate", "numb", "determined", "broken", "calm", "angry", "resigned", null],
+      "description": "Protagonist's emotional state at end"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "decision.schema.json"
+      },
+      "description": "Ordered list of decisions made in this loop"
+    },
+    "decision_vector": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "description": "Compressed decision representation (choice indices only) for Hamming distance"
+    },
+    "path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ordered list of node IDs traversed"
+    },
+    "outcome": {
+      "$ref": "outcome.schema.json",
+      "description": "How this loop ended"
+    },
+    "sub_loops": {
+      "type": "array",
+      "items": {
+        "$ref": "sub-loop.schema.json"
+      },
+      "description": "Nested retry segments within this loop"
+    },
+    "equivalence_class_id": {
+      "type": ["string", "null"],
+      "description": "Which equivalence class this loop belongs to"
+    },
+    "is_anchor": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a key loop to be fully narrated?"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Categorical tags (e.g., 'kill_boss', 'save_sister')"
+    },
+    "operator_used": {
+      "type": ["string", "null"],
+      "enum": ["explore", "cause", "avoid", "trigger", "relive", "vary", "chaos", null],
+      "description": "Which operator drove this loop's decisions"
+    },
+    "operator_target": {
+      "type": ["string", "null"],
+      "description": "What the operator was targeting (event ID, loop ID, etc.)"
+    },
+    "narrative_summary": {
+      "type": ["string", "null"],
+      "description": "Brief prose summary for montage use"
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Author notes (not for narrative output)"
+    }
+  },
+  "additionalProperties": false
+}
