@@ -1,8 +1,8 @@
 """
 Engine components for Loop Engine.
 
-Modules: storage, validation
-Future: graph_engine, operators, compression, generator
+Modules: storage, validation, graph_engine
+Future: operators, compression, generator
 """
 
 from .storage import LoopStorage, create_storage
@@ -13,6 +13,7 @@ from .validation import (
     validate_parent_chain,
     ValidationError,
 )
+from .graph_engine import GraphEngine
 
 __all__ = [
     "LoopStorage",
@@ -22,4 +23,5 @@ __all__ = [
     "validate_loop_class",
     "validate_parent_chain",
     "ValidationError",
+    "GraphEngine",
 ]

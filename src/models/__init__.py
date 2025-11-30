@@ -2,6 +2,7 @@
 Data models for Loop Engine.
 
 Core types: Loop, SubLoop, LoopClass, KnowledgeProfile, MoodProfile
+Graph types: EventNode, Transition, DayGraph, WorldState
 """
 
 from .loop import (
@@ -45,6 +46,20 @@ from .knowledge import (
     fresh_mood,
 )
 
+from .graph import (
+    # Enums
+    NodeType,
+    # Models
+    EventNode,
+    Transition,
+    WorldState,
+    SimulationResult,
+    DayGraph,
+    # Functions
+    load_graph,
+    create_empty_graph,
+)
+
 __all__ = [
     # Types
     "LoopID",
@@ -57,12 +72,18 @@ __all__ = [
     "EmotionalBaseline",
     "TraumaMarker",
     "SkillType",
+    "NodeType",
     # Models
     "Loop",
     "SubLoop",
     "LoopClass",
     "KnowledgeProfile",
     "MoodProfile",
+    "EventNode",
+    "Transition",
+    "WorldState",
+    "SimulationResult",
+    "DayGraph",
     # Functions
     "generate_loop_id",
     "generate_class_id",
@@ -78,4 +99,6 @@ __all__ = [
     "create_class_from_loop",
     "empty_knowledge",
     "fresh_mood",
+    "load_graph",
+    "create_empty_graph",
 ]

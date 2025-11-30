@@ -6,8 +6,8 @@
 |-------|--------|----------|-------|
 | 0. Foundations | **COMPLETE** | 14/14 | Orchestrator |
 | 1. Backend | **COMPLETE** | 20/20 | DataArchitect |
-| 2. Graph Engine | Ready | 0/25 | GraphEngineer |
-| 3. Loop Operations | Blocked by P2 | 0/28 | LoopOperator |
+| 2. Graph Engine | **COMPLETE** | 25/25 | GraphEngineer |
+| 3. Loop Operations | Ready | 0/28 | LoopOperator |
 | 4. Compression | Blocked by P3 | 0/26 | CompressionSpecialist |
 | 5. Narrative | Blocked by P4 | 0/32 | NarrativeWeaver |
 
@@ -87,51 +87,51 @@
 
 ---
 
-## Phase 2: Graph Engine Checklist
+## Phase 2: Graph Engine Checklist ✓
 
 ### 2.1 Time System
-- [ ] TimeSlot type
-- [ ] Time arithmetic
-- [ ] Day boundaries
-- [ ] Time constraints
+- [x] TimeSlot type (int alias)
+- [x] Time arithmetic (via time_slot comparisons)
+- [x] Day boundaries (total_time_slots in DayGraph)
+- [x] Time constraints (time_cost in Transition)
 
 ### 2.2 Event Nodes
-- [ ] EventNode struct
-- [ ] Node creation/validation
-- [ ] Event type taxonomy
-- [ ] Critical/Soft/Death classification
+- [x] EventNode struct (src/models/graph.py)
+- [x] Node creation/validation (can_enter, apply_effects)
+- [x] Event type taxonomy (NodeType enum)
+- [x] Critical/Soft/Death/Revelation classification
 
 ### 2.3 Edges
-- [ ] Transition struct
-- [ ] Edge creation/validation
-- [ ] Conditional edges
-- [ ] Probabilistic outcomes
+- [x] Transition struct (from_node, to_node, conditions)
+- [x] Edge creation/validation (add_transition)
+- [x] Conditional edges (can_traverse with KNOW:/NOT:)
+- [x] Probabilistic outcomes (probability, roll_success)
 
 ### 2.4 Graph Construction
-- [ ] DayGraph container
-- [ ] Add/remove nodes
-- [ ] Add/remove edges
-- [ ] Graph validation
-- [ ] Serialization
+- [x] DayGraph container (src/models/graph.py)
+- [x] Add/remove nodes
+- [x] Add/remove edges (transitions)
+- [x] Graph validation (validate method)
+- [x] Serialization (to_json, from_json, save, load)
 
 ### 2.5 World State
-- [ ] WorldState definition
-- [ ] State transitions
-- [ ] State diff tracking
+- [x] WorldState definition (time, location, knowledge, facts)
+- [x] State transitions (visit_node, apply_effects)
+- [x] State diff tracking (copy_state, knowledge_gained)
 
 ### 2.6 Pathfinding
-- [ ] find_paths()
-- [ ] simulate_loop()
-- [ ] valid_choices()
-- [ ] Feasibility checking
+- [x] find_paths() - BFS with knowledge tracking
+- [x] simulate_loop() - full simulation with outcomes
+- [x] valid_choices() - get_valid_choices
+- [x] Feasibility checking (is_reachable)
 
 ### 2.7 Analysis Tools
-- [ ] Critical node identification
-- [ ] Choke point detection
-- [ ] Reachability maps
-- [ ] Graph visualization export
+- [x] Critical node identification (get_critical_nodes)
+- [x] Choke point detection (find_choke_points)
+- [x] Reachability maps (get_reachability_map)
+- [x] Graph visualization export (to_json)
 
-**Phase 2 Complete:** [ ]
+**Phase 2 Complete:** [x]
 
 ---
 
@@ -280,7 +280,7 @@
 ## Integration Milestones
 
 - [x] **M1**: Can create and store a loop ✓
-- [ ] **M2**: Can traverse a day graph
+- [x] **M2**: Can traverse a day graph ✓
 - [ ] **M3**: Can generate loops via operators
 - [ ] **M4**: Can compress loops into classes
 - [ ] **M5**: Can generate narrative from classes
