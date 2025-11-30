@@ -1,7 +1,7 @@
 """
 Engine components for Loop Engine.
 
-Modules: storage, validation, graph_engine, operators, policies, generator
+Modules: storage, validation, graph_engine, operators, policies, generator, compression
 """
 
 from .storage import LoopStorage, create_storage
@@ -41,6 +41,34 @@ from .generator import (
     GenerationStats,
     generate_epoch_story,
 )
+from .compression import (
+    # Equivalence
+    compute_equivalence_key,
+    loops_in_same_class,
+    # Families
+    StrategyType,
+    RiskLevel,
+    LoopFamily,
+    infer_strategy,
+    infer_risk_level,
+    # Anchors
+    AnchorCriteria,
+    AnchorScore,
+    score_anchor_candidate,
+    select_anchors,
+    # Montages
+    Montage,
+    create_montage,
+    # Short loops
+    ShortLoopCluster,
+    cluster_short_loops,
+    # Sub-loop macros
+    SubLoopMacro,
+    detect_subloop_patterns,
+    # Manager
+    CompressionStats,
+    CompressionManager,
+)
 
 __all__ = [
     # Storage
@@ -79,4 +107,24 @@ __all__ = [
     "LoopGenerator",
     "GenerationStats",
     "generate_epoch_story",
+    # Compression
+    "compute_equivalence_key",
+    "loops_in_same_class",
+    "StrategyType",
+    "RiskLevel",
+    "LoopFamily",
+    "infer_strategy",
+    "infer_risk_level",
+    "AnchorCriteria",
+    "AnchorScore",
+    "score_anchor_candidate",
+    "select_anchors",
+    "Montage",
+    "create_montage",
+    "ShortLoopCluster",
+    "cluster_short_loops",
+    "SubLoopMacro",
+    "detect_subloop_patterns",
+    "CompressionStats",
+    "CompressionManager",
 ]
