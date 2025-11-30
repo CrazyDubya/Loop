@@ -5,8 +5,8 @@
 | Phase | Status | Progress | Agent |
 |-------|--------|----------|-------|
 | 0. Foundations | **COMPLETE** | 14/14 | Orchestrator |
-| 1. Backend | Ready | 0/20 | DataArchitect |
-| 2. Graph Engine | Blocked by P1 | 0/25 | GraphEngineer |
+| 1. Backend | **COMPLETE** | 20/20 | DataArchitect |
+| 2. Graph Engine | Ready | 0/25 | GraphEngineer |
 | 3. Loop Operations | Blocked by P2 | 0/28 | LoopOperator |
 | 4. Compression | Blocked by P3 | 0/26 | CompressionSpecialist |
 | 5. Narrative | Blocked by P4 | 0/32 | NarrativeWeaver |
@@ -46,44 +46,44 @@
 
 ---
 
-## Phase 1: Backend Checklist
+## Phase 1: Backend Checklist ✓
 
 ### 1.1 Core Data Models
-- [ ] Loop struct defined
-- [ ] SubLoop struct defined
-- [ ] LoopClass struct defined
-- [ ] KnowledgeProfile struct defined
-- [ ] MoodProfile struct defined
-- [ ] Tag system defined
+- [x] Loop struct defined (src/models/loop.py)
+- [x] SubLoop struct defined (src/models/loop.py)
+- [x] LoopClass struct defined (src/models/loop.py)
+- [x] KnowledgeProfile struct defined (src/models/knowledge.py)
+- [x] MoodProfile struct defined (src/models/knowledge.py)
+- [x] Tag system defined (LoopTag enum)
 
 ### 1.2 ID & Hashing
-- [ ] UUID generation
-- [ ] Outcome hash algorithm
-- [ ] Knowledge ID derivation
-- [ ] Decision vector encoding
+- [x] UUID generation (generate_loop_id, generate_class_id)
+- [x] Outcome hash algorithm (compute_outcome_hash)
+- [x] Knowledge ID derivation (compute_knowledge_id)
+- [x] Decision vector encoding (encode_decisions, decode_decisions)
 
 ### 1.3 Storage
-- [ ] Storage backend chosen
-- [ ] Loop persistence
-- [ ] SubLoop persistence
-- [ ] Class persistence
-- [ ] Index structures
+- [x] Storage backend chosen (SQLite)
+- [x] Loop persistence (src/engine/storage.py)
+- [x] SubLoop persistence
+- [x] Class persistence
+- [x] Index structures (outcome_hash, epoch, parent_id, knowledge_id)
 
 ### 1.4 Query Interface
-- [ ] get_loop(id)
-- [ ] get_loops_by_epoch
-- [ ] get_loops_by_outcome
-- [ ] get_loop_lineage
-- [ ] get_class_members
-- [ ] count_loops_matching
+- [x] get_loop(id)
+- [x] get_loops_by_epoch
+- [x] get_loops_by_outcome
+- [x] get_loop_lineage
+- [x] get_class_members (get_loops_by_class)
+- [x] count_loops_matching (count_loops)
 
 ### 1.5 Validation
-- [ ] Loop validation
-- [ ] Parent chain integrity
-- [ ] Epoch ordering
-- [ ] Test fixtures
+- [x] Loop validation (src/engine/validation.py)
+- [x] Parent chain integrity (validate_parent_chain)
+- [x] Epoch ordering (validate_epoch_ordering)
+- [x] Test fixtures (63 tests passing)
 
-**Phase 1 Complete:** [ ]
+**Phase 1 Complete:** [x]
 
 ---
 
@@ -279,7 +279,7 @@
 
 ## Integration Milestones
 
-- [ ] **M1**: Can create and store a loop
+- [x] **M1**: Can create and store a loop ✓
 - [ ] **M2**: Can traverse a day graph
 - [ ] **M3**: Can generate loops via operators
 - [ ] **M4**: Can compress loops into classes
