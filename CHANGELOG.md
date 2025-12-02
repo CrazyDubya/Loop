@@ -85,6 +85,39 @@ The Python implementation is archived for:
 - **Learning reference**: Different approach to same problem
 - **Future consideration**: May revisit for ML/AI integration
 
+#### Python Unique Features Discovery (Dec 2, 2025)
+
+After comprehensive analysis, **significant unique value** was discovered in the Python implementation:
+
+**13 Major Unique Features** (not in TypeScript baseline):
+1. ⭐ **Advanced decision vector operations** - Genetic algorithm-inspired (Hamming distance, crossover, mutation)
+2. ⭐ **Triple-hash equivalence system** - Separate hashes for outcome, knowledge, mood
+3. ⭐ **Comprehensive narrative prose templates** - 4 montage types × 3 variations, transitions, revelations
+4. ⭐ **Emotional arc tracking** - Quantitative intensity scoring with peak/valley detection
+5. **Parametric loop families** - Bitwise pattern matching with wildcards
+6. **Anchor scoring with breakdown** - Transparent scoring for debugging
+7. **Sub-loop macro detection** - "Time loop within time loop" compression
+8. **Short loop clustering** - Early termination pattern analysis
+9. **Complete story assembly pipeline** - End-to-end narrative generation
+10. **Stateful adaptive policies** - Policies that learn and adapt
+11. **Production-grade validation** - Comprehensive integrity checking
+12. **Advanced SQLite indexing** - Multi-column optimization
+13. **Comprehensive test edge cases** - Demonstrates important patterns
+
+**Estimated Value**: ~2,300 lines of production-quality algorithms and narrative content
+
+**Documentation Created**:
+- `docs/PYTHON_UNIQUE_FEATURES.md` - Complete feature documentation with examples
+- `docs/PYTHON_ALGORITHMS.md` - Standalone algorithm specifications for porting
+
+**Porting Priority**:
+- **Critical**: Decision vectors, triple-hash, anchor scoring
+- **High**: Prose templates, emotional arc tracking
+- **Medium**: Loop families, sub-loop macros, stateful policies
+- **Low**: Clustering, advanced indexing
+
+This discovery validates the archival decision - the Python branch contains intellectual investment worth preserving.
+
 #### Content Extraction from PR #1
 Practical task breakdowns and checklists from PR #1 extracted to:
 - `docs/WRITING-GUIDE.md` - How to actually use Loop Engine to write stories
