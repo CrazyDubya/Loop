@@ -495,6 +495,130 @@ Fill in intermediate states as needed.
 
 ---
 
+## Advanced Narrative Techniques
+
+These physics-inspired storytelling concepts can add depth and "impossible" situations to your loop narratives. They don't require quantum mathematics - just narrative imagination.
+
+### Superposition Narrative
+
+**Concept**: Instead of the protagonist definitively choosing path A or B, they exist in a state of "having chosen both."
+
+**When to Use**:
+- Moments of indecision that span multiple loops
+- Character considering multiple approaches simultaneously
+- Narrative "potentiality" before commitment
+
+**Example**:
+> "He stood at the crossroads, not choosing, not yet. In some sense, he was already walking down all three paths, his future self a ghost in each direction."
+
+**Implementation**:
+- Write multiple equivalence classes for the same loop number
+- Use subjunctive/conditional language ("he could have," "might," "almost")
+- Delay narrative commitment until a later "observation" moment
+
+### Interference Effects
+
+**Concept**: Multiple paths to the same outcome that mysteriously "cancel out" or reinforce each other in unexpected ways.
+
+**When to Use**:
+- Explaining why certain outcomes become impossible despite viable paths
+- Creating "cursed" routes that fail regardless of approach
+- Modeling fate/destiny as interference patterns
+
+**Example**:
+> "Every time he tried to reach the station by the riverside, something stopped him. It was as if the universe itself was conspiring - as if his attempts through the park somehow cancelled out his attempts along the water, leaving him frozen between them."
+
+**Implementation**:
+- Track multiple paths to same target event
+- Some paths reinforce (constructive) → higher success rate
+- Some paths cancel (destructive) → impossible despite logic
+- Use this to create narrative puzzles ("Why can't I reach X?")
+
+### Entangled Outcomes
+
+**Concept**: Two loops or character versions whose fates are mysteriously correlated - one's success requires another's failure.
+
+**When to Use**:
+- Conservation laws in your narrative physics
+- Sacrifice mechanics ("save one, lose another")
+- Character versions bound across loops
+
+**Example**:
+> "In Loop 4,721, he saved her but lost himself. In some other loop - he couldn't remember the number - a different him had made the opposite choice. And somehow, impossibly, he knew: as long as that other version had lost her, he could keep her here. They were bound together, those two loops, like two sides of a coin that could never both land heads-up."
+
+**Implementation**:
+- Define paired loops with inverse outcomes
+- Track correlations: if Loop A succeeds, Loop B must fail
+- Use for tragic choices and zero-sum dilemmas
+
+### Observer Effect
+
+**Concept**: The act of narrating (observing) a loop changes its nature - unwritten loops exist in pure potentiality.
+
+**When to Use**:
+- Meta-narrative moments about storytelling itself
+- Protagonist becoming aware of narrative selection
+- Explaining why some loops "matter" and others don't
+
+**Example**:
+> "The loops he'd never bothered to remember - the ones he'd lived but never examined - existed differently. They were possibilities, not memories. Fuzzy. Undefined. It was only when he paid attention, when he crystallized a loop into story, that it became real."
+
+**Implementation**:
+- Distinguish between "written" anchor loops and "unwritten" compressed classes
+- Use prose to indicate certainty (anchor) vs. uncertainty (montage)
+- Protagonist can "look" at old loops and collapse their ambiguity
+
+### Wave Function Collapse
+
+**Concept**: The moment when superposed possibilities collapse into a single definite outcome.
+
+**When to Use**:
+- Climactic decision points
+- Commitment after long indecision
+- Irreversible choices
+
+**Example**:
+> "For a thousand loops, he'd been neither savior nor monster, neither committed nor fled. But standing there, watching the timer count down, the wave collapsed. He chose. And in that choosing, all the other versions of himself - the ones who'd walked away, the ones who'd hesitated - ceased to exist."
+
+**Implementation**:
+- Build narrative tension through ambiguity
+- Then: single decisive anchor loop
+- All other possibilities become "never happened"
+- Use stark language shift: subjunctive → past tense
+
+### The Three-Box Paradox
+
+**Concept**: Character appears to exist in multiple incompatible states when "observed" from different perspectives.
+
+**When to Use**:
+- Unreliable narrator moments
+- Multiple observers of same loop
+- Schrödinger's protagonist situations
+
+**Example**:
+> "She asked him where he'd been at noon. 'The library,' he said, truthfully. His partner asked the same question. 'The bank,' he answered, equally truthfully. Both were right. Both were wrong. He'd learned to be in multiple places by existing in none."
+
+**Implementation**:
+- Same loop, different narrator perspectives
+- Each perspective reveals different "measurement"
+- Use to create mystery, ambiguity, or existential horror
+
+---
+
+### Using These Techniques
+
+**Guidelines**:
+1. Use sparingly - these are spices, not main ingredients
+2. Establish rules - even "quantum" narrative needs internal consistency
+3. Serve the story - don't use quantum concepts just because they're cool
+4. Make it human - the weirdness should illuminate character, not obscure it
+
+**Further Reading**:
+- See `docs/research/QUANTUM-MATHEMATICS-FOR-LOOP-SYSTEMS.md` for the mathematical inspiration behind these concepts
+- These narrative techniques are inspired by quantum physics but don't require understanding the math
+
+---
+
 ## Additional Resources
 
 - **StartHere** - Original design document with theoretical foundation
