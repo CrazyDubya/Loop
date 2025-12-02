@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/equivalence-class.schema.json",
+  "title": "EquivalenceClass",
+  "description": "A group of loops that are functionally identical (same outcome + knowledge delta)",
+  "type": "object",
+  "required": ["id", "outcome_hash", "knowledge_end_hash", "representative_loop_id", "member_count"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this class"
+    },
+    "outcome_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the canonical outcome"
+    },
+    "knowledge_end_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the ending knowledge state"
+    },
+    "composite_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Combined hash for quick lookup (outcome + knowledge)"
+    },
+    "representative_loop_id": {
+      "type": "string",
+      "description": "The loop ID that best represents this class (for narration)"
+    },
+    "sample_loop_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 5,
+      "description": "A few example loops for variety in narration"
+    },
+    "member_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of loops in this class"
+    },
+    "epoch_distribution": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "description": "Map of epoch_id -> count of loops from that epoch"
+    },
+    "outcome_summary": {
+      "type": "string",
+      "description": "Human-readable summary of what happens (e.g., 'Dies in bank explosion, learns nothing')"
+    },
+    "knowledge_delta_summary": {
+      "type": "string",
+      "description": "What knowledge is gained (e.g., 'Learns codeword X')"
+    },
+    "common_tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags that appear in most member loops"
+    },
+    "decision_vector_centroid": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Average decision vector for similarity comparisons"
+    },
+    "decision_vector_variance": {
+      "type": "number",
+      "minimum": 0,
+      "description": "How much decision vectors vary within this class"
+    },
+    "first_occurrence_loop_id": {
+      "type": "string",
+      "description": "Which loop first discovered this outcome/knowledge combo"
+    },
+    "last_occurrence_loop_id": {
+      "type": "string",
+      "description": "Most recent loop in this class"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "narrative_template": {
+      "type": "string",
+      "description": "Template for generating montage prose about this class"
+    }
+  },
+  "additionalProperties": false
+}

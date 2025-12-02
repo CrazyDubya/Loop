@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/sub-loop.schema.json",
+  "title": "SubLoop",
+  "description": "A nested loop segment within a parent loop (local rewind/retry)",
+  "type": "object",
+  "required": ["id", "parent_loop_id", "start_node_id", "end_node_id", "attempt_count", "best_outcome_id"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this sub-loop"
+    },
+    "parent_loop_id": {
+      "type": "string",
+      "description": "The containing loop"
+    },
+    "parent_sub_loop_id": {
+      "type": ["string", "null"],
+      "description": "If nested, the containing sub-loop (max depth enforced by validator)"
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "Nesting depth (1 = direct child of loop, max 3)"
+    },
+    "start_node_id": {
+      "type": "string",
+      "description": "Graph node where sub-loop rewind point is"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Story-time of rewind point"
+    },
+    "end_node_id": {
+      "type": "string",
+      "description": "Graph node where sub-loop exits (success or give up)"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Story-time when sub-loop was exited"
+    },
+    "attempt_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "How many times this segment was attempted"
+    },
+    "strategies_tried": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["strategy", "attempts", "success"],
+        "properties": {
+          "strategy": { "type": "string" },
+          "attempts": { "type": "integer", "minimum": 1 },
+          "success": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "Summary of different approaches tried"
+    },
+    "best_outcome_id": {
+      "type": "string",
+      "description": "Outcome ID of the best result achieved"
+    },
+    "final_outcome_id": {
+      "type": "string",
+      "description": "Outcome ID of the attempt that was kept"
+    },
+    "knowledge_gained": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fact IDs learned during sub-loop attempts"
+    },
+    "psychological_effect": {
+      "type": "object",
+      "properties": {
+        "frustration_delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "mastery_delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "description": "How this sub-loop affected the protagonist's mental state"
+    },
+    "narrative_summary": {
+      "type": "string",
+      "description": "One-paragraph summary for montage use"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/epoch.schema.json",
+  "title": "Epoch",
+  "description": "A phase in the protagonist's looping journey (psychological/strategic era)",
+  "type": "object",
+  "required": ["id", "name", "order", "strategy_profile"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this epoch"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Human-readable name (e.g., 'Denial', 'Experimentation', 'Ruthlessness')"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sequence position (0 = first epoch)"
+    },
+    "description": {
+      "type": "string",
+      "description": "What characterizes this phase of the journey"
+    },
+    "strategy_profile": {
+      "type": "object",
+      "required": ["primary_operator", "risk_tolerance"],
+      "properties": {
+        "primary_operator": {
+          "type": "string",
+          "enum": ["explore", "cause", "avoid", "trigger", "relive", "vary", "chaos"],
+          "description": "Dominant strategy during this epoch"
+        },
+        "risk_tolerance": {
+          "type": "string",
+          "enum": ["minimal", "low", "medium", "high", "reckless"],
+          "description": "How much risk the protagonist accepts"
+        },
+        "goals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What the protagonist is trying to achieve"
+        }
+      }
+    },
+    "emotional_baseline": {
+      "type": "string",
+      "enum": ["hopeful", "curious", "frustrated", "desperate", "numb", "determined", "broken", "transcendent"],
+      "description": "Typical emotional state during this epoch"
+    },
+    "entry_conditions": {
+      "type": "object",
+      "properties": {
+        "min_loop_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required_knowledge": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "trigger_event": {
+          "type": "string"
+        }
+      },
+      "description": "What causes transition into this epoch"
+    },
+    "exit_conditions": {
+      "type": "object",
+      "properties": {
+        "max_loop_count": {
+          "type": "integer"
+        },
+        "required_outcome": {
+          "type": "string"
+        },
+        "knowledge_threshold": {
+          "type": "string"
+        }
+      },
+      "description": "What causes transition out of this epoch"
+    },
+    "anchor_loop_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Key loops that define this epoch (fully narrated)"
+    },
+    "loop_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total loops in this epoch"
+    }
+  },
+  "additionalProperties": false
+}

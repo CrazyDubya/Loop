@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/outcome.schema.json",
+  "title": "Outcome",
+  "description": "The result state at the end of a loop or sub-loop",
+  "type": "object",
+  "required": ["id", "type", "terminal_node_id", "timestamp"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this outcome"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["death", "reset_trigger", "day_end", "voluntary_reset", "sub_loop_exit", "success", "failure", "partial"],
+      "description": "Category of how the loop ended"
+    },
+    "terminal_node_id": {
+      "type": "string",
+      "description": "The graph node where the loop terminated"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Story-time when the loop ended"
+    },
+    "cause": {
+      "type": "string",
+      "description": "What directly caused this outcome (e.g., 'explosion at bank', 'fell asleep')"
+    },
+    "world_state_delta": {
+      "type": "object",
+      "description": "Key-value pairs of what changed in the world (for tracking)",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"]
+      }
+    },
+    "characters_affected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["character_id", "state"],
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": ["alive", "dead", "injured", "escaped", "captured", "unknown"]
+          }
+        }
+      },
+      "description": "Final state of key characters"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of canonical outcome representation for equivalence checking"
+    }
+  },
+  "additionalProperties": false
+}
