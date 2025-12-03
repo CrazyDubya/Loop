@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 99 102 241;
+    --color-secondary: 139 92 246;
+    --color-accent: 6 182 212;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-sans;
+  }
+
+  /* Custom scrollbar for dark mode */
+  .dark ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-loop-bg-darker;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-loop-primary ring-offset-2 ring-offset-loop-bg-dark;
+  }
+}
+
+@layer components {
+  /* Panel styling */
+  .panel {
+    @apply bg-loop-bg-darker rounded-lg border border-gray-700/50 overflow-hidden;
+  }
+
+  .panel-header {
+    @apply px-4 py-2 border-b border-gray-700/50 font-medium text-sm text-gray-300;
+  }
+
+  .panel-content {
+    @apply p-4;
+  }
+
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-loop-primary hover:bg-loop-primary/90 text-white;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-700 hover:bg-gray-600 text-gray-100;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-gray-700/50 text-gray-300;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-gray-200 transition-colors;
+  }
+
+  /* Input styling */
+  .input {
+    @apply w-full px-3 py-2 bg-loop-bg-dark border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:border-loop-primary focus:ring-1 focus:ring-loop-primary;
+  }
+
+  .select {
+    @apply input appearance-none cursor-pointer;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-success {
+    @apply status-dot bg-loop-status-success;
+  }
+
+  .status-warning {
+    @apply status-dot bg-loop-status-warning;
+  }
+
+  .status-error {
+    @apply status-dot bg-loop-status-error;
+  }
+
+  /* Node badges */
+  .node-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  /* Tree view items */
+  .tree-item {
+    @apply flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-700/50 cursor-pointer text-sm text-gray-300 hover:text-gray-100;
+  }
+
+  .tree-item-active {
+    @apply tree-item bg-loop-primary/20 text-loop-primary;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs bg-gray-800 text-gray-100 rounded shadow-lg pointer-events-none opacity-0 transition-opacity;
+  }
+
+  /* Keyboard shortcut badge */
+  .kbd {
+    @apply inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-mono bg-gray-700 text-gray-300 rounded border border-gray-600;
+  }
+
+  /* Card styling for loops */
+  .loop-card {
+    @apply panel p-3 space-y-2 hover:border-loop-primary/50 transition-colors cursor-pointer;
+  }
+
+  .loop-card-selected {
+    @apply loop-card border-loop-primary bg-loop-primary/10;
+  }
+
+  /* Graph node styling */
+  .graph-node {
+    @apply px-3 py-2 rounded-lg border-2 font-medium text-sm shadow-lg min-w-[100px] text-center;
+  }
+
+  /* Validation message styling */
+  .validation-error {
+    @apply flex items-start gap-2 p-2 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm;
+  }
+
+  .validation-warning {
+    @apply flex items-start gap-2 p-2 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm;
+  }
+
+  .validation-info {
+    @apply flex items-start gap-2 p-2 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  /* Text truncation */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-loop-primary to-loop-secondary bg-clip-text text-transparent;
+  }
+
+  /* Grid layouts */
+  .grid-main {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+  }
+
+  /* Resizable panels */
+  .resize-handle {
+    @apply absolute w-1 h-full cursor-col-resize bg-transparent hover:bg-loop-primary/50 transition-colors;
+  }
+}
+
+/* React Flow customizations */
+.react-flow__background {
+  background-color: var(--tw-bg-loop-bg-darker) !important;
+}
+
+.react-flow__minimap {
+  @apply bg-loop-bg-darker border border-gray-700 rounded-lg overflow-hidden;
+}
+
+.react-flow__controls {
+  @apply bg-loop-bg-darker border border-gray-700 rounded-lg overflow-hidden;
+}
+
+.react-flow__controls-button {
+  @apply bg-transparent hover:bg-gray-700 border-gray-700;
+}
+
+.react-flow__controls-button svg {
+  @apply fill-gray-300;
+}
+
+/* Monaco editor customizations */
+.monaco-editor {
+  @apply rounded-lg overflow-hidden;
+}
+
+.monaco-editor .margin {
+  background-color: rgb(24 24 37) !important;
+}
