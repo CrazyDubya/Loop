@@ -1,0 +1,483 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loop-engine.dev/schemas/side-arc.schema.json",
+  "title": "SideArcDefinition",
+  "description": "Complete definition of a side arc (B/C/D story) with FSM states and cross-loop mechanics",
+  "type": "object",
+  "required": ["meta", "states", "transitions", "timeWindows", "resolutionProfile", "knowledgeFlagsProduced", "initialStateId"],
+  "properties": {
+    "meta": {
+      "$ref": "#/definitions/SideArcMeta"
+    },
+    "states": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ArcState" },
+      "minItems": 1,
+      "description": "In-loop FSM states for this arc"
+    },
+    "transitions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ArcTransition" },
+      "description": "In-loop FSM transitions"
+    },
+    "timeWindows": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ArcTimeWindow" },
+      "description": "Time windows for arc interventions"
+    },
+    "resolutionProfile": {
+      "$ref": "#/definitions/ArcResolutionProfile"
+    },
+    "looperConstraint": {
+      "$ref": "#/definitions/LooperOnlyConstraint",
+      "description": "Constraint for looper-only arcs (optional)"
+    },
+    "knowledgeFlagsProduced": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Knowledge flags this arc can produce"
+    },
+    "initialStateId": {
+      "type": "string",
+      "description": "Initial state ID when arc begins"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ArcTier": {
+      "type": "string",
+      "enum": ["B", "C", "D"],
+      "description": "Arc tier: B (core), C (medium), D (micro)"
+    },
+    "ResolubilityClass": {
+      "type": "string",
+      "enum": ["SINGLE_PASS", "MULTI_PASS_OBSERVATION", "MULTI_PASS_INTERVENTION"],
+      "description": "How the arc can be resolved across loops"
+    },
+    "LooperOnlyClass": {
+      "type": "string",
+      "enum": ["NORMAL", "HARD_FOR_NORMAL", "LOOPER_ONLY"],
+      "description": "Whether the arc requires looper knowledge"
+    },
+    "ArcMetaLevel": {
+      "type": "string",
+      "enum": ["UNTOUCHED", "SEEN_ONCE", "PATTERN_OBSERVED", "MECHANIC_KNOWN", "OPTIMAL_PLAN_FOUND"],
+      "description": "Cross-loop understanding level"
+    },
+    "ResolutionMode": {
+      "type": "string",
+      "enum": ["NOT_RESOLVED", "ONSITE_HEAVY", "ONSITE_LIGHT", "REMOTE_SIMPLE", "REMOTE_COMPLEX", "UNSTABLE"],
+      "description": "How an arc can be resolved"
+    },
+    "ArcOutcomeType": {
+      "type": "string",
+      "enum": ["GOOD", "BAD", "NEUTRAL", "LOCKED_OUT", "IN_PROGRESS"],
+      "description": "Terminal state outcome type"
+    },
+    "ConflictType": {
+      "type": "string",
+      "enum": ["TIME", "LOCATION", "PSYCHE", "RESOURCE", "NARRATIVE"],
+      "description": "Type of conflict between arcs"
+    },
+    "SideArcMeta": {
+      "type": "object",
+      "required": ["id", "name", "tier", "resolubility", "looperClass", "priorityWeight"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this arc"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "tier": {
+          "$ref": "#/definitions/ArcTier"
+        },
+        "resolubility": {
+          "$ref": "#/definitions/ResolubilityClass"
+        },
+        "looperClass": {
+          "$ref": "#/definitions/LooperOnlyClass"
+        },
+        "priorityWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Narrative weight / importance"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional tags for categorization"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcState": {
+      "type": "object",
+      "required": ["id", "label", "description", "isTerminal"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique state identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of this state"
+        },
+        "isTerminal": {
+          "type": "boolean",
+          "description": "Whether this state has no outgoing transitions"
+        },
+        "outcomeType": {
+          "$ref": "#/definitions/ArcOutcomeType",
+          "description": "For terminal states, the outcome type"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional tags"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TransitionTrigger": {
+      "type": "object",
+      "properties": {
+        "requiredActions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required player actions"
+        },
+        "requiredKnowledgeFlags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required knowledge flags from KnowledgeState"
+        },
+        "requiredArcMetaLevel": {
+          "$ref": "#/definitions/ArcMetaLevel",
+          "description": "Required arc meta level"
+        },
+        "requiredTimeSlots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "description": "Required time slots (HH:MM format)"
+        },
+        "requiredLocations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required locations"
+        },
+        "forbiddenArcStates": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Other arc states that block this transition"
+        },
+        "requiredArcStates": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Required other arc states"
+        },
+        "stochastic": {
+          "type": "object",
+          "required": ["probability"],
+          "properties": {
+            "probability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Probability of transition"
+            },
+            "seed": {
+              "type": "string",
+              "description": "Seed for deterministic randomness"
+            }
+          },
+          "additionalProperties": false
+        },
+        "minConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum confidence level required"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcTransition": {
+      "type": "object",
+      "required": ["id", "from", "to", "trigger"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique transition identifier"
+        },
+        "from": {
+          "type": "string",
+          "description": "Source state ID"
+        },
+        "to": {
+          "type": "string",
+          "description": "Target state ID"
+        },
+        "trigger": {
+          "$ref": "#/definitions/TransitionTrigger"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Priority for conflict resolution"
+        },
+        "label": {
+          "type": "string",
+          "description": "Optional label for narrative"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcTimeWindow": {
+      "type": "object",
+      "required": ["arcId", "windowId", "activeSlots"],
+      "properties": {
+        "arcId": {
+          "type": "string",
+          "description": "Arc this window belongs to"
+        },
+        "windowId": {
+          "type": "string",
+          "description": "Window identifier"
+        },
+        "activeSlots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "minItems": 1,
+          "description": "Active time slots (HH:MM format)"
+        },
+        "locations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Valid locations during this window"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this window must be hit for resolution"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of this window"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolutionRequirements": {
+      "type": "object",
+      "required": ["mode", "requiredTimeSlots", "requiredLocations", "requiredKnowledgeFlags", "minArcMetaLevel", "riskLevel"],
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/ResolutionMode"
+        },
+        "requiredTimeSlots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "description": "Time slots required for this mode"
+        },
+        "requiredLocations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Locations required for this mode"
+        },
+        "requiredKnowledgeFlags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Knowledge flags required for this mode"
+        },
+        "minArcMetaLevel": {
+          "$ref": "#/definitions/ArcMetaLevel"
+        },
+        "riskLevel": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Risk level"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of this resolution approach"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcResolutionProfile": {
+      "type": "object",
+      "required": ["arcId", "availableModes", "modeRequirements", "defaultMode"],
+      "properties": {
+        "arcId": {
+          "type": "string",
+          "description": "Arc this profile belongs to"
+        },
+        "availableModes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ResolutionMode" },
+          "minItems": 1,
+          "description": "Available resolution modes"
+        },
+        "modeRequirements": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ResolutionRequirements" },
+          "description": "Requirements for each mode"
+        },
+        "defaultMode": {
+          "$ref": "#/definitions/ResolutionMode",
+          "description": "Default mode when no better option"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LooperOnlyConstraint": {
+      "type": "object",
+      "required": ["arcId", "observationRequirements", "maxObservationsPerLoop", "resolutionFlags"],
+      "properties": {
+        "arcId": {
+          "type": "string",
+          "description": "Arc this constraint applies to"
+        },
+        "observationRequirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "description": "Observation requirements (must all be collected)"
+        },
+        "maxObservationsPerLoop": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum observations possible per loop"
+        },
+        "resolutionFlags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Knowledge flags needed for resolution"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Description of why this is looper-only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcConflictRule": {
+      "type": "object",
+      "required": ["arcId1", "arcId2", "conflictType", "mutuallyExclusive", "details"],
+      "properties": {
+        "arcId1": {
+          "type": "string",
+          "description": "First arc in conflict"
+        },
+        "arcId2": {
+          "type": "string",
+          "description": "Second arc in conflict"
+        },
+        "conflictType": {
+          "$ref": "#/definitions/ConflictType"
+        },
+        "mutuallyExclusive": {
+          "type": "boolean",
+          "description": "Whether arcs are completely mutually exclusive"
+        },
+        "details": {
+          "type": "object",
+          "properties": {
+            "overlappingSlots": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Overlapping time slots"
+            },
+            "overlappingLocations": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Overlapping locations"
+            },
+            "description": {
+              "type": "string",
+              "description": "Human-readable description"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ArcLoopMeta": {
+      "type": "object",
+      "required": ["arcId", "level", "observations", "interventions", "discoveredFlags"],
+      "properties": {
+        "arcId": {
+          "type": "string",
+          "description": "Arc this meta belongs to"
+        },
+        "level": {
+          "$ref": "#/definitions/ArcMetaLevel"
+        },
+        "observations": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of loops where arc was observed"
+        },
+        "interventions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of loops where active intervention occurred"
+        },
+        "discoveredFlags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific knowledge flags discovered for this arc"
+        },
+        "bestOutcomeAchieved": {
+          "$ref": "#/definitions/ArcOutcomeType",
+          "description": "Best terminal state outcome achieved"
+        },
+        "firstEngagedLoop": {
+          "type": "string",
+          "description": "Loop ID where arc was first engaged"
+        },
+        "lastEngagedLoop": {
+          "type": "string",
+          "description": "Loop ID of most recent engagement"
+        },
+        "customData": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Custom data for arc-specific tracking"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
