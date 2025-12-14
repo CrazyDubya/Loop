@@ -10,8 +10,9 @@
 | 3. Loop Operations | **COMPLETE** | 28/28 | LoopOperator |
 | 4. Compression | **COMPLETE** | 26/26 | CompressionSpecialist |
 | 5. Narrative | **COMPLETE** | 32/32 | NarrativeWeaver |
+| 6. Simulation Lab | **PROPOSED** | 0/0 | Orchestrator |
 
-🎉 **ALL PHASES COMPLETE** 🎉
+🎉 **Core phases complete. Simulation Lab proposed and awaiting kickoff.** 🎉
 
 ---
 
@@ -86,6 +87,20 @@
 - [x] Test fixtures (63 tests passing)
 
 **Phase 1 Complete:** [x]
+
+---
+
+## Phase 6: Simulation Lab (Proposed)
+
+- [ ] Simulation Lab design documented (docs/simulation-lab.md)
+- [ ] Variant templating DSL defined
+- [ ] Synthetic tester archetypes implemented
+- [ ] Telemetry bus schemas finalized
+- [ ] Fitness scoring + anomaly detection pipelines
+- [ ] Programmer console prototype
+- [ ] Promotion gate criteria ratified
+
+**Phase 6 Status:** Pending design and kickoff.
 
 ---
 
