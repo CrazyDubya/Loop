@@ -5,3 +5,4 @@ export * from './operators';
 export * from './narrative';
 export * from './cli';
 export * from './performance';
+export * from './arcs';
